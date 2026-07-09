@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Barang Keluar — Gudang Cafe Zero Six</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<header class="topbar" id="appHeader"></header>
+
+<main>
+  <div class="screen-header">
+    <a class="back-btn" href="menu.html">←</a>
+    <span class="screen-title">📤 Barang Keluar</span>
+  </div>
+
+  <label class="field-label">Tanggal</label>
+  <input type="date" id="tanggal">
+
+  <label class="field-label">Petugas (yang mengambil barang)</label>
+  <select id="petugas"><option value="">— pilih petugas —</option></select>
+
+  <label class="field-label">Staff (saksi, terutama saat admin tidak ada)</label>
+  <select id="staff"><option value="">— pilih staff —</option></select>
+
+  <div id="items"></div>
+
+  <button class="btn-tambah-baris" id="tambahBaris">➕ Tambah Baris</button>
+  <button class="btn-submit keluar-mode" id="submitBtn">Simpan Barang Keluar</button>
+  <div id="formMsg" class="form-msg"></div>
+</main>
+
+<script src="common.js"></script>
+<script>
+const user = requireLogin();
+if (user) renderHeader(user);
+
+document.getElementById('tanggal').valueAsDate = new Date();
+
+// Petugas & Staff dipilih dari daftar Anggota yang sama, tapi dua orang yang berbeda
+async function loadAnggotaOptions() {
+  const res = await api('getAnggota', {});
+  if (!res.success) return;
+  ['petugas', 'staff'].forEach(id => {
+    const sel = document.getElementById(id);
+    res.data.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a.nama;
+      opt.textContent = a.nama + ' (' + a.jabatan + ')';
+      sel.appendChild(opt);
+    });
+  });
+}
+loadAnggotaOptions();
+
+let rowCount = 0;
+let searchTimer = null;
+
+function addRow() {
+  rowCount++;
+  const wrap = document.createElement('div');
+  wrap.className = 'item-row';
+  wrap.innerHTML =
+    '<button class="hapus-item">✕</button>' +
+    '<label class="field-label" style="margin-top:0">Produk</label>' +
+    '<div class="autocomplete-wrap">' +
+      '<input type="text" class="produk-search" placeholder="Ketik nama produk…" autocomplete="off">' +
+      '<div class="autocomplete-list hidden"></div>' +
+    '</div>' +
+    '<div class="produk-info"></div>' +
+    '<label class="field-label qty-input">Qty</label>' +
+    '<input type="text" class="qty-field" inputmode="numeric" placeholder="0">';
+  document.getElementById('items').appendChild(wrap);
+
+  let selectedProduk = null;
+  const searchInput = wrap.querySelector('.produk-search');
+  const listEl = wrap.querySelector('.autocomplete-list');
+  const infoEl = wrap.querySelector('.produk-info');
+  const qtyField = wrap.querySelector('.qty-field');
+
+  function updateInfo() {
+    if (!selectedProduk) return;
+    const qty = Number(qtyField.value || 0);
+    const cukup = qty <= Number(selectedProduk.stock);
+    infoEl.textContent = 'Stock saat ini: ' + selectedProduk.stock + ' ' + selectedProduk.satuan +
+      (qty > 0 && !cukup ? ' — TIDAK CUKUP' : '');
+    infoEl.className = 'produk-info ' + (cukup ? 'stock-ok' : 'stock-low');
+  }
+
+  searchInput.addEventListener('input', () => {
+    if (selectedProduk && selectedProduk.namaProduk.toLowerCase() !== searchInput.value.trim().toLowerCase()) {
+      selectedProduk = null;
+      infoEl.textContent = '';
+    }
+    clearTimeout(searchTimer);
+    const q = searchInput.value;
+    if (q.trim().length === 0) { listEl.classList.add('hidden'); return; }
+    searchTimer = setTimeout(async () => {
+      const res = await api('searchProduk', { query: q });
+      if (!res.success) return;
+      renderList(res.data);
+    }, 250);
+  });
+
+  searchInput.addEventListener('focus', () => {
+    if (listEl.children.length > 0) listEl.classList.remove('hidden');
+  });
+  document.addEventListener('click', (e) => {
+    if (!listEl.contains(e.target) && e.target !== searchInput) listEl.classList.add('hidden');
+  });
+
+  function renderList(items) {
+    if (items.length === 0) {
+      listEl.innerHTML = '<div class="autocomplete-item produk-baru-opt">Produk tidak ditemukan — Barang Keluar hanya untuk produk yang sudah terdaftar.</div>';
+      listEl.classList.remove('hidden');
+      return;
+    }
+    listEl.innerHTML = items.map((p, i) => {
+      const glyph = KATEGORI_GLYPH[p.kategori] || '';
+      return '<div class="autocomplete-item" data-idx="' + i + '">' +
+        '<div class="nm">' + glyph + ' ' + p.namaProduk + '</div>' +
+        '<div class="meta">' + p.kategori + ' · Stock: ' + p.stock + ' ' + p.satuan + '</div>' +
+        '</div>';
+    }).join('');
+    listEl.classList.remove('hidden');
+    listEl.querySelectorAll('.autocomplete-item').forEach(el => {
+      if (!el.dataset.idx) return;
+      el.addEventListener('click', () => {
+        selectedProduk = items[Number(el.dataset.idx)];
+        searchInput.value = selectedProduk.namaProduk;
+        updateInfo();
+        listEl.classList.add('hidden');
+      });
+    });
+  }
+
+  qtyField.addEventListener('input', updateInfo);
+  wrap.querySelector('.hapus-item').addEventListener('click', () => wrap.remove());
+
+  wrap._getData = () => selectedProduk ? {
+    idProduk: selectedProduk.idProduk,
+    namaProduk: selectedProduk.namaProduk,
+    qty: qtyField.value
+  } : null;
+}
+
+document.getElementById('tambahBaris').addEventListener('click', addRow);
+addRow();
+
+const submitBtn = document.getElementById('submitBtn');
+guardDoubleSubmit(submitBtn, async () => {
+  const rows = [...document.querySelectorAll('#items .item-row')];
+  const items = rows.map(r => r._getData()).filter(Boolean).filter(i => Number(i.qty) > 0);
+  const petugas = document.getElementById('petugas').value;
+  const staff = document.getElementById('staff').value;
+  const msgEl = document.getElementById('formMsg');
+
+  if (!petugas) {
+    msgEl.textContent = 'Pilih petugas dulu.';
+    msgEl.className = 'form-msg err';
+    return;
+  }
+  if (!staff) {
+    msgEl.textContent = 'Pilih staff (saksi) dulu.';
+    msgEl.className = 'form-msg err';
+    return;
+  }
+  if (items.length === 0) {
+    msgEl.textContent = 'Isi minimal 1 produk dengan qty.';
+    msgEl.className = 'form-msg err';
+    return;
+  }
+
+  showLoading('Menyimpan barang keluar…');
+  try {
+    const res = await api('submitBarangKeluar', {
+      tanggal: document.getElementById('tanggal').value,
+      petugas: petugas,
+      staff: staff,
+      items: items
+    });
+    hideLoading();
+    if (res.success) {
+      msgEl.textContent = 'Tersimpan: ' + res.idTransaksi + ' (' + res.jumlahItem + ' produk).';
+      msgEl.className = 'form-msg ok';
+      document.getElementById('items').innerHTML = '';
+      addRow();
+    } else {
+      msgEl.textContent = res.message;
+      msgEl.className = 'form-msg err';
+    }
+  } catch (e) {
+    hideLoading();
+    msgEl.textContent = 'Gagal terhubung ke server.';
+    msgEl.className = 'form-msg err';
+  }
+});
+</script>
+</body>
+</html>

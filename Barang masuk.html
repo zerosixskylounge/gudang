@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Barang Masuk — Gudang Cafe Zero Six</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<header class="topbar" id="appHeader"></header>
+
+<main>
+  <div class="screen-header">
+    <a class="back-btn" href="menu.html">←</a>
+    <span class="screen-title">📥 Barang Masuk</span>
+  </div>
+
+  <label class="field-label">Tanggal</label>
+  <input type="date" id="tanggal">
+
+  <div id="items"></div>
+
+  <button class="btn-tambah-baris" id="tambahBaris">➕ Tambah Baris</button>
+  <button class="btn-submit masuk-mode" id="submitBtn">Simpan Barang Masuk</button>
+  <div id="formMsg" class="form-msg"></div>
+</main>
+
+<script src="common.js"></script>
+<script>
+const user = requireLogin();
+if (user) renderHeader(user);
+
+document.getElementById('tanggal').valueAsDate = new Date();
+
+let rowCount = 0;
+let searchTimer = null;
+
+function addRow() {
+  rowCount++;
+  const wrap = document.createElement('div');
+  wrap.className = 'item-row';
+  wrap.innerHTML =
+    '<button class="hapus-item">✕</button>' +
+    '<label class="field-label" style="margin-top:0">Nama Produk</label>' +
+    '<div class="autocomplete-wrap">' +
+      '<input type="text" class="produk-search" placeholder="Ketik nama produk…" autocomplete="off">' +
+      '<div class="autocomplete-list hidden"></div>' +
+    '</div>' +
+    '<div class="produk-info"></div>' +
+    '<div class="produk-baru-fields hidden">' +
+      '<label class="field-label" style="margin-top:0">Kategori (produk baru)</label>' +
+      '<select class="kategori-baru">' +
+        '<option value="Bar">🍸 Bar</option>' +
+        '<option value="Koki">🍳 Koki</option>' +
+        '<option value="Produk">📦 Produk</option>' +
+        '<option value="Inventaris">🧹 Inventaris</option>' +
+      '</select>' +
+      '<label class="field-label">Minimal Stock (untuk peringatan restock)</label>' +
+      '<input type="text" class="minimal-baru" inputmode="numeric" placeholder="Contoh: 5">' +
+    '</div>' +
+    '<label class="field-label qty-input">Qty</label>' +
+    '<input type="text" class="qty-field" inputmode="numeric" placeholder="0">';
+  document.getElementById('items').appendChild(wrap);
+
+  let selectedProduk = null;
+  const searchInput = wrap.querySelector('.produk-search');
+  const listEl = wrap.querySelector('.autocomplete-list');
+  const infoEl = wrap.querySelector('.produk-info');
+  const baruFields = wrap.querySelector('.produk-baru-fields');
+
+  function refreshMode() {
+    const text = searchInput.value.trim();
+    if (selectedProduk && selectedProduk.namaProduk.toLowerCase() === text.toLowerCase()) {
+      // produk lama terpilih
+      infoEl.textContent = 'Stock saat ini: ' + selectedProduk.stock + ' ' + selectedProduk.satuan;
+      infoEl.className = 'produk-info stock-ok';
+      baruFields.classList.add('hidden');
+    } else {
+      selectedProduk = null;
+      if (text.length > 0) {
+        infoEl.innerHTML = '<span class="produk-baru-badge">Produk Baru</span> — lengkapi kategori & minimal stock di bawah';
+        baruFields.classList.remove('hidden');
+      } else {
+        infoEl.textContent = '';
+        baruFields.classList.add('hidden');
+      }
+    }
+  }
+
+  searchInput.addEventListener('input', () => {
+    refreshMode();
+    clearTimeout(searchTimer);
+    const q = searchInput.value;
+    if (q.trim().length === 0) { listEl.classList.add('hidden'); return; }
+    searchTimer = setTimeout(async () => {
+      const res = await api('searchProduk', { query: q });
+      if (!res.success) return;
+      renderList(res.data);
+    }, 250);
+  });
+
+  searchInput.addEventListener('focus', () => {
+    if (listEl.children.length > 0) listEl.classList.remove('hidden');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!listEl.contains(e.target) && e.target !== searchInput) listEl.classList.add('hidden');
+  });
+
+  function renderList(items) {
+    if (items.length === 0) { listEl.innerHTML = ''; listEl.classList.add('hidden'); return; }
+    listEl.innerHTML = items.map((p, i) => {
+      const glyph = KATEGORI_GLYPH[p.kategori] || '';
+      return '<div class="autocomplete-item" data-idx="' + i + '">' +
+        '<div class="nm">' + glyph + ' ' + p.namaProduk + '</div>' +
+        '<div class="meta">' + p.kategori + ' · Stock: ' + p.stock + ' ' + p.satuan + '</div>' +
+        '</div>';
+    }).join('');
+    listEl.classList.remove('hidden');
+    listEl.querySelectorAll('.autocomplete-item').forEach(el => {
+      el.addEventListener('click', () => {
+        selectedProduk = items[Number(el.dataset.idx)];
+        searchInput.value = selectedProduk.namaProduk;
+        refreshMode();
+        listEl.classList.add('hidden');
+      });
+    });
+  }
+
+  wrap.querySelector('.hapus-item').addEventListener('click', () => wrap.remove());
+
+  wrap._getData = () => {
+    const namaTeks = searchInput.value.trim();
+    const qty = wrap.querySelector('.qty-field').value;
+    if (!namaTeks) return null;
+
+    if (selectedProduk && selectedProduk.namaProduk.toLowerCase() === namaTeks.toLowerCase()) {
+      return { idProduk: selectedProduk.idProduk, namaProduk: selectedProduk.namaProduk, qty };
+    }
+    // produk baru
+    return {
+      namaProduk: namaTeks,
+      qty: qty,
+      kategoriBaru: wrap.querySelector('.kategori-baru').value,
+      minimalStockBaru: wrap.querySelector('.minimal-baru').value || 0
+    };
+  };
+}
+
+document.getElementById('tambahBaris').addEventListener('click', addRow);
+addRow();
+
+const submitBtn = document.getElementById('submitBtn');
+guardDoubleSubmit(submitBtn, async () => {
+  const rows = [...document.querySelectorAll('#items .item-row')];
+  const items = rows.map(r => r._getData()).filter(Boolean).filter(i => Number(i.qty) > 0);
+  const msgEl = document.getElementById('formMsg');
+
+  if (items.length === 0) {
+    msgEl.textContent = 'Isi minimal 1 produk dengan qty.';
+    msgEl.className = 'form-msg err';
+    return;
+  }
+
+  showLoading('Menyimpan barang masuk…');
+  try {
+    const res = await api('submitBarangMasuk', {
+      tanggal: document.getElementById('tanggal').value,
+      items: items
+    });
+    hideLoading();
+    if (res.success) {
+      msgEl.textContent = 'Tersimpan: ' + res.idTransaksi + ' (' + res.jumlahItem + ' produk).';
+      msgEl.className = 'form-msg ok';
+      document.getElementById('items').innerHTML = '';
+      addRow();
+    } else {
+      msgEl.textContent = res.message;
+      msgEl.className = 'form-msg err';
+    }
+  } catch (e) {
+    hideLoading();
+    msgEl.textContent = 'Gagal terhubung ke server.';
+    msgEl.className = 'form-msg err';
+  }
+});
+</script>
+</body>
+</html>

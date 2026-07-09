@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Menu — Gudang Cafe Zero Six</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+
+<header class="topbar" id="appHeader"></header>
+
+<main>
+  <div class="ringkasan" id="ringkasanBox">Memuat ringkasan…</div>
+
+  <div class="menu-grid">
+    <a class="menu-card masuk" href="barang-masuk.html">
+      <span class="glyph">📥</span>
+      <span class="label">Barang Masuk</span>
+      <span class="desc">Catat barang dari supplier</span>
+    </a>
+    <a class="menu-card keluar" href="barang-keluar.html">
+      <span class="glyph">📤</span>
+      <span class="label">Barang Keluar</span>
+      <span class="desc">Barang diambil ke cafe</span>
+    </a>
+    <a class="menu-card" href="cek-stock.html">
+      <span class="glyph">📋</span>
+      <span class="label">Cek Stock</span>
+      <span class="desc">Lihat stok per kategori</span>
+    </a>
+  </div>
+</main>
+
+<script src="common.js"></script>
+<script>
+const user = requireLogin();
+if (user) {
+  renderHeader(user);
+  loadRingkasan();
+}
+
+async function loadRingkasan() {
+  const box = document.getElementById('ringkasanBox');
+  box.textContent = 'Memuat ringkasan…';
+  try {
+    const res = await api('getRingkasanStock', {});
+    if (!res.success) { box.textContent = 'Gagal memuat ringkasan.'; return; }
+
+    let html = '';
+    html += '<div class="baris"><span>Total Produk Aktif</span><b class="num">' + res.totalProduk + '</b></div>';
+    html += '<div class="baris"><span>Total Stock (semua pcs)</span><b class="num">' + res.totalStock + '</b></div>';
+
+    if (res.habis.length > 0) {
+      html += '<div class="alert-box">' +
+        '<div class="judul">⛔ Stock Habis (' + res.habis.length + ')</div>' +
+        res.habis.map(p => '<div class="item"><span>' + p.nama + '</span><b class="num">0</b></div>').join('') +
+        '</div>';
+    }
+    if (res.hampirHabis.length > 0) {
+      html += '<div class="alert-box">' +
+        '<div class="judul">⚠️ Akan Habis (' + res.hampirHabis.length + ')</div>' +
+        res.hampirHabis.map(p => '<div class="item"><span>' + p.nama + '</span><b class="num">' + p.stock + ' / min ' + p.minimal + '</b></div>').join('') +
+        '</div>';
+    }
+    box.innerHTML = html;
+  } catch (e) {
+    box.textContent = 'Gagal terhubung ke server.';
+  }
+}
+</script>
+</body>
+</html>
