@@ -2,7 +2,7 @@
    GANTI URL INI dengan URL Web App hasil Deploy Apps Script kamu
    Cukup diisi SEKALI di sini — semua halaman pakai file ini.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbwvmG0hgK18ahi3JPylB3f7YTBIT8z-wvROOaUL4zBJqrjwJ0VEKdu_nxFBx2ptiANkLw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyx1GfMeVMhc4bN2uk5T2bNsWg42rvvN_JMOqqaFs6SinCXy4nF2kckaP0pU8BTDgTYgw/exec";
 
 const KATEGORI_GLYPH = { Bar: '🍸', Koki: '🍳', Produk: '📦', Inventaris: '🧹' };
 const KATEGORI_LIST = ['Bar', 'Koki', 'Produk', 'Inventaris'];
