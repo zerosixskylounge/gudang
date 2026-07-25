@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Grafik HPP · Zero Six Inventory</title>
+
+<link rel="stylesheet" href="styles.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="app.js"></script>
+
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+
+      <div class="sidebar-logo">
+        Zero<span>Six</span>
+      </div>
+
+      <div class="sidebar-subtitle">
+        Inventory System
+      </div>
+
+    </div>
+
+    <nav class="sidebar-menu">
+
+      <a href="dashboard.html">
+        Dashboard
+      </a>
+
+      <a href="produk.html">
+        Master Produk
+      </a>
+
+      <a href="anggota.html">
+        Anggota
+      </a>
+
+      <a href="barangmasuk.html">
+        Barang Masuk
+      </a>
+
+      <a href="barangkeluar.html">
+        Barang Keluar
+      </a>
+
+      <a href="stockopname.html">
+        Stock Opname
+      </a>
+
+      <a href="logharga.html">
+        Log Harga
+      </a>
+
+      <a
+        href="hpp.html"
+        class="active"
+      >
+        Grafik HPP
+      </a>
+
+      <a href="laporan.html">
+        Laporan
+      </a>
+
+      <a href="pengaturan.html">
+        Pengaturan
+      </a>
+
+    </nav>
+
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+
+      <div>
+
+        <h1>
+          Grafik HPP
+        </h1>
+
+        <p>
+          Analisa perubahan harga bahan baku
+        </p>
+
+      </div>
+
+      <button
+        id="btnLogout"
+        class="btn-danger"
+      >
+        Logout
+      </button>
+
+    </header>
+
+    <!-- FILTER -->
+    <section class="card">
+
+      <div class="toolbar">
+
+        <select id="filterProduk">
+
+          <option value="">
+            Pilih Produk
+          </option>
+
+        </select>
+
+        <button
+          id="btnRefresh"
+          class="btn-primary"
+        >
+          Refresh
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- STATISTIK -->
+    <section class="stats-grid">
+
+      <div class="stat-card">
+
+        <div class="stat-title">
+          Harga Terbaru
+        </div>
+
+        <div
+          id="hargaTerbaru"
+          class="stat-value"
+        >
+          Rp 0
+        </div>
+
+      </div>
+
+      <div class="stat-card">
+
+        <div class="stat-title">
+          Harga Tertinggi
+        </div>
+
+        <div
+          id="hargaTertinggi"
+          class="stat-value"
+        >
+          Rp 0
+        </div>
+
+      </div>
+
+      <div class="stat-card">
+
+        <div class="stat-title">
+          Harga Terendah
+        </div>
+
+        <div
+          id="hargaTerendah"
+          class="stat-value"
+        >
+          Rp 0
+        </div>
+
+      </div>
+
+      <div class="stat-card">
+
+        <div class="stat-title">
+          Rata-rata
+        </div>
+
+        <div
+          id="hargaRata"
+          class="stat-value"
+        >
+          Rp 0
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- CHART -->
+    <section class="card">
+
+      <h2>
+        Grafik Perubahan Harga
+      </h2>
+
+      <canvas
+        id="hppChart"
+        height="100"
+      ></canvas>
+
+    </section>
+
+    <!-- TABLE -->
+    <section class="card">
+
+      <h2>
+        Riwayat Harga
+      </h2>
+
+      <div class="table-responsive">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Tanggal</th>
+              <th>Supplier</th>
+              <th>Harga Lama</th>
+              <th>Harga Baru</th>
+              <th>Status</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="tableBody">
+
+            <tr>
+
+              <td colspan="5">
+                Pilih produk terlebih dahulu
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+/* ==========================================================
+PART 2
+LOAD PRODUK
+LOAD HPP HISTORY
+STATISTIK
+TABLE
+========================================================== */
+
+let daftarProduk = [];
+let historyHarga = [];
+let chartHpp = null;
+
+/* ==========================================================
+LOAD PRODUK
+========================================================== */
+async function loadProduk(){
+
+  try{
+
+    const result =
+      await panggilApi(
+        "masterproduk",
+        "list",
+        {
+          status:"Aktif"
+        }
+      );
+
+    if(!result.success){
+
+      tampilkanToast(
+        result.message ||
+        "Gagal memuat produk."
+      );
+
+      return;
+    }
+
+    daftarProduk =
+      result.data || [];
+
+    renderProdukDropdown();
+
+  }catch(error){
+
+    tampilkanToast(
+      "Tidak dapat memuat produk."
+    );
+
+  }
+
+}
+
+/* ==========================================================
+RENDER DROPDOWN
+========================================================== */
+function renderProdukDropdown(){
+
+  const select =
+    document.getElementById(
+      "filterProduk"
+    );
+
+  select.innerHTML =
+    '<option value="">Pilih Produk</option>';
+
+  daftarProduk.forEach(function(item){
+
+    select.innerHTML += `
+
+      <option value="${item.id}">
+        ${escapeHtml(item.nama)}
+      </option>
+
+    `;
+
+  });
+
+}
+
+/* ==========================================================
+LOAD HISTORY HPP
+========================================================== */
+async function loadHistoryHpp(){
+
+  const idProduk =
+    document.getElementById(
+      "filterProduk"
+    ).value;
+
+  if(!idProduk){
+
+    kosongkanData();
+
+    return;
+  }
+
+  try{
+
+    tampilkanLoading();
+
+    const result =
+      await panggilApi(
+        "hpp",
+        "history",
+        {
+          idProduk:idProduk
+        }
+      );
+
+    sembunyikanLoading();
+
+    if(!result.success){
+
+      tanganiJikaSessionGagal(
+        result.message
+      );
+
+      tampilkanToast(
+        result.message ||
+        "Gagal memuat data HPP."
+      );
+
+      return;
+    }
+
+    historyHarga =
+      result.data || [];
+
+    renderStatistik();
+
+    renderTable();
+
+    prepareChart();
+
+  }catch(error){
+
+    sembunyikanLoading();
+
+    tampilkanToast(
+      "Tidak dapat menghubungi server."
+    );
+
+  }
+
+}
+
+/* ==========================================================
+STATISTIK
+========================================================== */
+function renderStatistik(){
+
+  if(historyHarga.length === 0){
+
+    kosongkanData();
+
+    return;
+  }
+
+  const hargaList =
+    historyHarga.map(function(item){
+
+      return Number(
+        item.hargaBaru || 0
+      );
+
+    });
+
+  const terbaru =
+    hargaList[
+      hargaList.length - 1
+    ];
+
+  const tertinggi =
+    Math.max(...hargaList);
+
+  const terendah =
+    Math.min(...hargaList);
+
+  const rata =
+    Math.round(
+
+      hargaList.reduce(
+        (a,b)=>a+b,
+        0
+      )
+
+      /
+
+      hargaList.length
+
+    );
+
+  document.getElementById(
+    "hargaTerbaru"
+  ).textContent =
+    formatRupiah(
+      terbaru
+    );
+
+  document.getElementById(
+    "hargaTertinggi"
+  ).textContent =
+    formatRupiah(
+      tertinggi
+    );
+
+  document.getElementById(
+    "hargaTerendah"
+  ).textContent =
+    formatRupiah(
+      terendah
+    );
+
+  document.getElementById(
+    "hargaRata"
+  ).textContent =
+    formatRupiah(
+      rata
+    );
+
+}
+
+/* ==========================================================
+RENDER TABLE
+========================================================== */
+function renderTable(){
+
+  const tbody =
+    document.getElementById(
+      "tableBody"
+    );
+
+  if(
+    historyHarga.length === 0
+  ){
+
+    tbody.innerHTML = `
+
+      <tr>
+        <td colspan="5">
+          Belum ada data harga.
+        </td>
+      </tr>
+
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML =
+    historyHarga.map(function(item){
+
+      return `
+
+      <tr>
+
+        <td>
+          ${formatTanggal(
+            item.tanggalNota
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.supplier || "-"
+          )}
+        </td>
+
+        <td>
+          ${formatRupiah(
+            item.hargaLama || 0
+          )}
+        </td>
+
+        <td>
+          ${formatRupiah(
+            item.hargaBaru || 0
+          )}
+        </td>
+
+        <td>
+          ${renderStatusBadge(
+            item.status
+          )}
+        </td>
+
+      </tr>
+
+      `;
+
+    }).join("");
+
+}
+
+/* ==========================================================
+PREPARE CHART DATA
+========================================================== */
+function prepareChart(){
+
+  const labels =
+    historyHarga.map(function(item){
+
+      return formatTanggal(
+        item.tanggalNota
+      );
+
+    });
+
+  const values =
+    historyHarga.map(function(item){
+
+      return Number(
+        item.hargaBaru || 0
+      );
+
+    });
+
+  renderChart(
+    labels,
+    values
+  );
+
+}
+
+/* ==========================================================
+FORMAT RUPIAH
+========================================================== */
+function formatRupiah(nilai){
+
+  return "Rp " +
+    Number(
+      nilai || 0
+    ).toLocaleString(
+      "id-ID"
+    );
+
+}
+
+/* ==========================================================
+FORMAT TANGGAL
+========================================================== */
+function formatTanggal(tanggal){
+
+  if(!tanggal){
+    return "-";
+  }
+
+  return new Date(
+    tanggal
+  ).toLocaleDateString(
+    "id-ID",
+    {
+      day:"2-digit",
+      month:"short",
+      year:"numeric"
+    }
+  );
+
+}
+
+/* ==========================================================
+STATUS BADGE
+========================================================== */
+function renderStatusBadge(status){
+
+  let kelas =
+    "badge-secondary";
+
+  if(status === "Naik"){
+
+    kelas =
+      "badge-danger";
+
+  }
+
+  if(status === "Turun"){
+
+    kelas =
+      "badge-success";
+
+  }
+
+  if(status === "Baru"){
+
+    kelas =
+      "badge-primary";
+
+  }
+
+  return `
+
+    <span class="badge ${kelas}">
+      ${status}
+    </span>
+
+  `;
+
+}
+/* ==========================================================
+PART 3
+CHART
+FILTER
+REFRESH
+EMPTY STATE
+========================================================== */
+
+/* ==========================================================
+RENDER CHART
+========================================================== */
+function renderChart(labels, values){
+
+  const canvas =
+    document.getElementById(
+      "hppChart"
+    );
+
+  const ctx =
+    canvas.getContext("2d");
+
+  if(chartHpp){
+
+    chartHpp.destroy();
+
+  }
+
+  chartHpp =
+    new Chart(ctx, {
+
+      type:"line",
+
+      data:{
+
+        labels:labels,
+
+        datasets:[{
+
+          label:"Harga Satuan",
+
+          data:values,
+
+          borderColor:"#1d4ed8",
+
+          backgroundColor:
+            "rgba(29,78,216,0.12)",
+
+          borderWidth:3,
+
+          tension:0.3,
+
+          fill:true,
+
+          pointRadius:5,
+
+          pointHoverRadius:7
+
+        }]
+
+      },
+
+      options:{
+
+        responsive:true,
+
+        maintainAspectRatio:false,
+
+        plugins:{
+
+          legend:{
+            display:true
+          }
+
+        },
+
+        scales:{
+
+          y:{
+
+            beginAtZero:false,
+
+            ticks:{
+
+              callback:function(value){
+
+                return "Rp " +
+                  Number(value)
+                  .toLocaleString(
+                    "id-ID"
+                  );
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+
+    });
+
+}
+
+/* ==========================================================
+KOSONGKAN DATA
+========================================================== */
+function kosongkanData(){
+
+  document.getElementById(
+    "hargaTerbaru"
+  ).textContent =
+    "Rp 0";
+
+  document.getElementById(
+    "hargaTertinggi"
+  ).textContent =
+    "Rp 0";
+
+  document.getElementById(
+    "hargaTerendah"
+  ).textContent =
+    "Rp 0";
+
+  document.getElementById(
+    "hargaRata"
+  ).textContent =
+    "Rp 0";
+
+  document.getElementById(
+    "tableBody"
+  ).innerHTML = `
+
+    <tr>
+
+      <td colspan="5">
+        Pilih produk terlebih dahulu
+      </td>
+
+    </tr>
+
+  `;
+
+  if(chartHpp){
+
+    chartHpp.destroy();
+
+    chartHpp = null;
+
+  }
+
+}
+
+/* ==========================================================
+REFRESH DATA
+========================================================== */
+function refreshData(){
+
+  loadHistoryHpp();
+
+}
+
+/* ==========================================================
+FILTER PRODUK
+========================================================== */
+function handleProdukChange(){
+
+  loadHistoryHpp();
+
+}
+
+/* ==========================================================
+RESET CHART
+========================================================== */
+function resetChart(){
+
+  if(chartHpp){
+
+    chartHpp.destroy();
+
+    chartHpp = null;
+
+  }
+
+}
+
+/* ==========================================================
+EXPORT DATA CHART
+========================================================== */
+function ambilDataChart(){
+
+  if(
+    historyHarga.length === 0
+  ){
+
+    tampilkanToast(
+      "Belum ada data."
+    );
+
+    return null;
+
+  }
+
+  return {
+
+    labels:
+      historyHarga.map(
+        item =>
+        item.tanggalNota
+      ),
+
+    values:
+      historyHarga.map(
+        item =>
+        item.hargaBaru
+      )
+
+  };
+
+}
+
+/* ==========================================================
+TREND HARGA
+========================================================== */
+function hitungTrendHarga(){
+
+  if(
+    historyHarga.length < 2
+  ){
+
+    return "STABIL";
+
+  }
+
+  const pertama =
+    Number(
+      historyHarga[0]
+      .hargaBaru
+    );
+
+  const terakhir =
+    Number(
+      historyHarga[
+        historyHarga.length - 1
+      ].hargaBaru
+    );
+
+  if(
+    terakhir > pertama
+  ){
+
+    return "NAIK";
+
+  }
+
+  if(
+    terakhir < pertama
+  ){
+
+    return "TURUN";
+
+  }
+
+  return "STABIL";
+
+}
+
+/* ==========================================================
+TAMPILKAN TREND
+========================================================== */
+function tampilkanTrend(){
+
+  const trend =
+    hitungTrendHarga();
+
+  console.log(
+    "Trend Harga:",
+    trend
+  );
+
+}
+</script>
+
+</body>
+</html>

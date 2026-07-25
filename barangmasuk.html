@@ -1,0 +1,1367 @@
+<!--
+============================================================
+FILE            : barangmasuk.html
+VERSION         : 2.1.0
+PROJECT         : Zero Six Inventory
+LAST UPDATE     : 23 Juli 2026
+
+MODULE          : BARANG MASUK
+
+FITUR
+------------------------------------------------------------
+- List Barang Masuk
+- Filter Produk
+- Tambah Barang Masuk
+- Detail Transaksi
+- Status Stock
+- Responsive Mobile
+- Sidebar Layout
+- Navbar Layout
+- API Barang Masuk
+
+DEPENDENSI
+------------------------------------------------------------
+- styles.css
+- app.js
+
+API
+------------------------------------------------------------
+module : barangmasuk
+
+action :
+- list
+- get
+- save
+
+============================================================
+-->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Barang Masuk · Zero Six Inventory</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ======================================================
+       SIDEBAR
+  ======================================================= -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">
+        Zero<span>Six</span>
+      </div>
+
+      <div class="sidebar-subtitle">
+        Sky Lounge Inventory
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <a href="dashboard.html" class="sidebar-link">
+        Dashboard
+      </a>
+
+      <a href="produk.html" class="sidebar-link">
+        Master Produk
+      </a>
+
+      <a href="anggota.html" class="sidebar-link">
+        Anggota
+      </a>
+
+      <a href="barangmasuk.html" class="sidebar-link active">
+        Barang Masuk
+      </a>
+
+      <a href="barangkeluar.html" class="sidebar-link">
+        Barang Keluar
+      </a>
+
+      <a href="stockopname.html" class="sidebar-link">
+        Stock Opname
+      </a>
+
+      <a href="logharga.html" class="sidebar-link">
+        Log Harga
+      </a>
+
+      <a href="hpp.html" class="sidebar-link">
+        Grafik HPP
+      </a>
+
+      <a href="laporan.html" class="sidebar-link">
+        Laporan
+      </a>
+
+      <a href="pengaturan.html" class="sidebar-link">
+        Pengaturan
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      Zero Six Inventory v2.1.0
+    </div>
+
+  </aside>
+
+
+  <!-- ======================================================
+       CONTENT AREA
+  ======================================================= -->
+  <div class="content-area">
+
+    <!-- ==================================================
+         NAVBAR
+    =================================================== -->
+    <header class="navbar">
+
+      <div>
+        <h1 class="navbar-title">
+          Barang Masuk
+        </h1>
+
+        <div class="navbar-subtitle" id="tanggalHariIni">
+          -
+        </div>
+      </div>
+
+      <div class="navbar-right">
+
+        <div class="navbar-user">
+
+          <div class="navbar-user-name" id="userNama">
+            -
+          </div>
+
+          <div class="navbar-user-role" id="userRole">
+            -
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          class="btn-danger"
+          id="btnLogout">
+          Keluar
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- ==================================================
+         MAIN CONTENT
+    =================================================== -->
+    <main class="main-content">
+
+      <!-- Loading -->
+      <div
+        class="loading-state"
+        id="loadingState">
+        Memuat data...
+      </div>
+
+      <!-- Error -->
+      <div
+        class="error-state"
+        id="errorState"
+        style="display:none">
+      </div>
+
+      <!-- Body -->
+      <div
+        id="pageBody"
+        style="display:none">
+
+        <!-- PART 2 akan mulai dari sini -->
+
+
+<!-- ==================================================
+     HEADER ACTION
+================================================== -->
+
+<div class="page-header">
+
+  <div>
+    <h2 class="page-title">
+      Transaksi Barang Masuk
+    </h2>
+
+    <p class="page-description">
+      Pencatatan seluruh barang yang masuk ke gudang.
+    </p>
+  </div>
+
+  <button
+    type="button"
+    class="btn-primary"
+    id="btnRefresh">
+
+    Refresh Data
+
+  </button>
+
+</div>
+
+
+<!-- ==================================================
+     RINGKASAN
+================================================== -->
+
+<div class="widget-grid">
+
+  <div class="widget stat-card">
+
+    <div class="stat-label">
+      Total Transaksi
+    </div>
+
+    <div
+      class="stat-value"
+      id="statTotalTransaksi">
+
+      0
+
+    </div>
+
+  </div>
+
+  <div class="widget stat-card">
+
+    <div class="stat-label">
+      Total Qty Masuk
+    </div>
+
+    <div
+      class="stat-value"
+      id="statTotalQty">
+
+      0
+
+    </div>
+
+  </div>
+
+  <div class="widget stat-card">
+
+    <div class="stat-label">
+      Produk Bertransaksi
+    </div>
+
+    <div
+      class="stat-value"
+      id="statProduk">
+
+      0
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ==================================================
+     FILTER
+================================================== -->
+
+<div class="widget">
+
+  <h3 class="widget-title">
+    Filter Data
+  </h3>
+
+  <div class="form-grid">
+
+    <div class="field">
+
+      <label class="field-label">
+        Produk
+      </label>
+
+      <select
+        id="filterProduk"
+        class="input-text">
+
+        <option value="">
+          Semua Produk
+        </option>
+
+      </select>
+
+    </div>
+
+    <div class="field">
+
+      <label class="field-label">
+        Cari ID
+      </label>
+
+      <input
+        type="text"
+        id="searchInput"
+        class="input-text"
+        placeholder="Cari ID transaksi...">
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ==================================================
+     FORM TAMBAH
+================================================== -->
+
+<div class="widget">
+
+  <h3 class="widget-title">
+    Tambah Barang Masuk
+  </h3>
+
+  <form id="formBarangMasuk">
+
+    <div class="form-grid">
+
+      <!-- TANGGAL -->
+      <div class="field">
+
+        <label class="field-label">
+          Tanggal
+        </label>
+
+        <input
+          type="date"
+          id="tanggal"
+          class="input-text"
+          required>
+
+      </div>
+
+
+      <!-- PRODUK -->
+      <div class="field">
+
+        <label class="field-label">
+          Produk
+        </label>
+
+        <select
+          id="idProduk"
+          class="input-text"
+          required>
+
+          <option value="">
+            Pilih Produk
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- QTY -->
+      <div class="field">
+
+        <label class="field-label">
+          Qty Masuk
+        </label>
+
+        <input
+          type="number"
+          min="1"
+          step="1"
+          id="qty"
+          class="input-text"
+          placeholder="0"
+          required>
+
+      </div>
+
+    </div>
+
+
+    <!-- PREVIEW PRODUK -->
+
+    <div
+      class="info-card"
+      id="produkPreview"
+      style="display:none">
+
+      <div class="info-row">
+        <span>Nama Produk</span>
+        <strong id="previewNama">-</strong>
+      </div>
+
+      <div class="info-row">
+        <span>Kategori</span>
+        <strong id="previewKategori">-</strong>
+      </div>
+
+      <div class="info-row">
+        <span>Stock Saat Ini</span>
+        <strong id="previewStock">0</strong>
+      </div>
+
+      <div class="info-row">
+        <span>Minimal Stock</span>
+        <strong id="previewMinimal">0</strong>
+      </div>
+
+    </div>
+
+
+    <div class="form-action">
+
+      <button
+        type="submit"
+        class="btn-primary"
+        id="btnSimpan">
+
+        Simpan Barang Masuk
+
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
+
+
+<!-- ==================================================
+     PART 3
+================================================== -->
+
+<div id="tableContainer"></div>
+
+<!-- ==================================================
+     TABEL DATA
+================================================== -->
+
+<div class="widget">
+
+  <div class="widget-header">
+
+    <h3 class="widget-title">
+      Riwayat Barang Masuk
+    </h3>
+
+    <div class="widget-badge">
+
+      <span id="totalData">
+        0
+      </span>
+
+      Data
+
+    </div>
+
+  </div>
+
+  <div class="table-responsive">
+
+    <table class="table-modern">
+
+      <thead>
+
+        <tr>
+
+          <th width="170">
+            ID
+          </th>
+
+          <th>
+            Produk
+          </th>
+
+          <th width="120">
+            Qty
+          </th>
+
+          <th width="150">
+            Tanggal
+          </th>
+
+          <th width="140">
+            Stock Sebelum
+          </th>
+
+          <th width="140">
+            Stock Sesudah
+          </th>
+
+          <th width="120">
+            Status
+          </th>
+
+          <th width="100">
+            Aksi
+          </th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="tableBody">
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+
+<!-- ==================================================
+     EMPTY STATE
+================================================== -->
+
+<div
+  class="widget"
+  id="emptyState"
+  style="display:none">
+
+  <div class="empty-state">
+
+    <div class="empty-icon">
+      📦
+    </div>
+
+    <h3>
+      Belum Ada Data
+    </h3>
+
+    <p>
+      Transaksi barang masuk belum tersedia.
+    </p>
+
+  </div>
+
+</div>
+
+
+<!-- ==================================================
+     DETAIL MODAL
+================================================== -->
+
+<div
+  class="modal-overlay"
+  id="detailModal">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h3 class="modal-title">
+        Detail Barang Masuk
+      </h3>
+
+      <button
+        class="modal-close"
+        id="btnCloseModal"
+        type="button">
+
+        ×
+
+      </button>
+
+    </div>
+
+    <div
+      class="modal-body"
+      id="detailBody">
+
+      Loading...
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ==================================================
+     SCRIPT
+================================================== -->
+
+<script>
+
+/* ==========================================
+   LOAD PRODUK
+========================================== */
+
+async function loadProduk(){
+
+  const result = await panggilApi(
+    "masterproduk",
+    "list",
+    {
+      status:"Aktif"
+    }
+  );
+
+  if(!result.success){
+
+    tampilkanToast(
+      result.message || "Gagal memuat produk"
+    );
+
+    return;
+  }
+
+  daftarProduk = result.data || [];
+
+  isiDropdownProduk();
+
+}
+
+
+/* ==========================================
+   ISI DROPDOWN
+========================================== */
+
+function isiDropdownProduk(){
+
+  const produkSelect =
+    document.getElementById("idProduk");
+
+  const filterSelect =
+    document.getElementById("filterProduk");
+
+  produkSelect.innerHTML =
+    '<option value="">Pilih Produk</option>';
+
+  filterSelect.innerHTML =
+    '<option value="">Semua Produk</option>';
+
+  daftarProduk.forEach(function(item){
+
+    const nama =
+      item["Nama Produk"] ||
+      item.namaProduk ||
+      item.nama ||
+      "-";
+
+    const id =
+      item["ID Produk"] ||
+      item.idProduk ||
+      item.id ||
+      "";
+
+    produkSelect.innerHTML +=
+      '<option value="' + id + '">' +
+      escapeHtml(nama) +
+      '</option>';
+
+    filterSelect.innerHTML +=
+      '<option value="' + id + '">' +
+      escapeHtml(nama) +
+      '</option>';
+
+  });
+
+}
+
+
+/* ==========================================
+   PREVIEW PRODUK
+========================================== */
+
+function tampilkanPreviewProduk(){
+
+  const idProduk =
+    document.getElementById("idProduk").value;
+
+  const produk =
+    daftarProduk.find(function(item){
+
+      return (
+        item["ID Produk"] === idProduk ||
+        item.idProduk === idProduk ||
+        item.id === idProduk
+      );
+
+    });
+
+  if(!produk){
+
+    document.getElementById(
+      "produkPreview"
+    ).style.display = "none";
+
+    return;
+  }
+
+  document.getElementById(
+    "produkPreview"
+  ).style.display = "block";
+
+  document.getElementById(
+    "previewNama"
+  ).textContent =
+    produk["Nama Produk"] ||
+    produk.namaProduk ||
+    "-";
+
+  document.getElementById(
+    "previewKategori"
+  ).textContent =
+    produk["Kategori"] ||
+    produk.kategori ||
+    "-";
+
+  document.getElementById(
+    "previewStock"
+  ).textContent =
+    produk["Stock Saat Ini"] ||
+    produk.stock ||
+    0;
+
+  document.getElementById(
+    "previewMinimal"
+  ).textContent =
+    produk["Minimal Stock"] ||
+    produk.minimalStock ||
+    0;
+
+}
+
+</script>
+<script>
+
+/* ==========================================
+   LOAD DATA BARANG MASUK
+========================================== */
+
+async function loadDataBarangMasuk(){
+
+  tampilkanLoading();
+
+  const payload = {};
+
+  const idProduk =
+    document.getElementById("filterProduk").value;
+
+  if(idProduk){
+    payload.idProduk = idProduk;
+  }
+
+  const result = await panggilApi(
+    "barangmasuk",
+    "list",
+    payload
+  );
+
+  sembunyikanLoading();
+
+  if(!result.success){
+
+    tampilkanToast(
+      result.message ||
+      "Gagal memuat data."
+    );
+
+    return;
+  }
+
+  dataBarangMasuk =
+    result.data || [];
+
+  renderTable(
+    dataBarangMasuk
+  );
+
+}
+
+
+/* ==========================================
+   RENDER TABLE
+========================================== */
+
+function renderTable(data){
+
+  const tbody =
+    document.getElementById("tableBody");
+
+  const totalData =
+    document.getElementById("totalData");
+
+  tbody.innerHTML = "";
+
+  totalData.textContent =
+    data.length;
+
+  if(data.length === 0){
+
+    document.getElementById(
+      "emptyState"
+    ).style.display = "block";
+
+    return;
+  }
+
+  document.getElementById(
+    "emptyState"
+  ).style.display = "none";
+
+  data.forEach(function(item){
+
+    const id =
+      item["ID"] ||
+      item.id ||
+      "-";
+
+    const produk =
+      item["Produk"] ||
+      item.produk ||
+      "-";
+
+    const qty =
+      item["Qty"] ||
+      item.qty ||
+      0;
+
+    const tanggal =
+      item["Tanggal"] ||
+      item.tanggal ||
+      "-";
+
+    const stockSebelum =
+      item["Stock Sebelum"] ||
+      item.stockSebelum ||
+      0;
+
+    const stockSesudah =
+      item["Stock Sesudah"] ||
+      item.stockSesudah ||
+      0;
+
+    const status =
+      item["Status"] ||
+      item.status ||
+      "-";
+
+    const tr =
+      document.createElement("tr");
+
+    tr.innerHTML =
+      '<td>' +
+      escapeHtml(id) +
+      '</td>' +
+
+      '<td>' +
+      escapeHtml(produk) +
+      '</td>' +
+
+      '<td>' +
+      qty +
+      '</td>' +
+
+      '<td>' +
+      escapeHtml(tanggal) +
+      '</td>' +
+
+      '<td>' +
+      stockSebelum +
+      '</td>' +
+
+      '<td>' +
+      stockSesudah +
+      '</td>' +
+
+      '<td>' +
+      '<span class="badge-success">' +
+      escapeHtml(status) +
+      '</span>' +
+      '</td>' +
+
+      '<td>' +
+      '<button ' +
+      'class="btn-icon" ' +
+      'onclick="lihatDetail(\'' + id + '\')">' +
+      '👁' +
+      '</button>' +
+      '</td>';
+
+    tbody.appendChild(tr);
+
+  });
+
+}
+
+
+/* ==========================================
+   SEARCH
+========================================== */
+
+function cariData(){
+
+  const keyword =
+    document
+      .getElementById("searchInput")
+      .value
+      .trim()
+      .toLowerCase();
+
+  if(!keyword){
+
+    renderTable(
+      dataBarangMasuk
+    );
+
+    return;
+  }
+
+  const hasil =
+    dataBarangMasuk.filter(function(item){
+
+      return JSON.stringify(item)
+        .toLowerCase()
+        .includes(keyword);
+
+    });
+
+  renderTable(hasil);
+
+}
+
+
+/* ==========================================
+   FILTER PRODUK
+========================================== */
+
+function filterProduk(){
+
+  loadDataBarangMasuk();
+
+}
+
+
+/* ==========================================
+   DETAIL TRANSAKSI
+========================================== */
+
+async function lihatDetail(id){
+
+  tampilkanLoading();
+
+  const result =
+    await panggilApi(
+      "barangmasuk",
+      "get",
+      {
+        id:id
+      }
+    );
+
+  sembunyikanLoading();
+
+  if(!result.success){
+
+    tampilkanToast(
+      result.message ||
+      "Gagal memuat detail."
+    );
+
+    return;
+  }
+
+  const data =
+    result.data || {};
+
+  const body =
+    document.getElementById(
+      "detailBody"
+    );
+
+  body.innerHTML =
+    '<div class="detail-grid">' +
+
+      '<div><b>ID</b><br>' +
+      escapeHtml(data.id || "-") +
+      '</div>' +
+
+      '<div><b>Produk</b><br>' +
+      escapeHtml(data.produk || "-") +
+      '</div>' +
+
+      '<div><b>Qty</b><br>' +
+      (data.qty || 0) +
+      '</div>' +
+
+      '<div><b>Stock Sebelum</b><br>' +
+      (data.stockSebelum || 0) +
+      '</div>' +
+
+      '<div><b>Stock Sesudah</b><br>' +
+      (data.stockSesudah || 0) +
+      '</div>' +
+
+      '<div><b>Status</b><br>' +
+      escapeHtml(data.statusStock || "-") +
+      '</div>' +
+
+    '</div>';
+
+  document
+    .getElementById("detailModal")
+    .classList.add("show");
+
+}
+
+
+/* ==========================================
+   TUTUP MODAL
+========================================== */
+
+function tutupModal(){
+
+  document
+    .getElementById("detailModal")
+    .classList.remove("show");
+
+}
+
+</script>
+
+
+<script>
+
+/* ==========================================
+   SIMPAN BARANG MASUK
+========================================== */
+
+async function simpanBarangMasuk(e){
+
+  e.preventDefault();
+
+  const tanggal =
+    document.getElementById("tanggal")
+    .value;
+
+  const idProduk =
+    document.getElementById("idProduk")
+    .value;
+
+  const qty =
+    Number(
+      document.getElementById("qty")
+      .value
+    );
+
+  if(!tanggal){
+
+    tampilkanToast(
+      "Tanggal wajib diisi."
+    );
+
+    return;
+  }
+
+  if(!idProduk){
+
+    tampilkanToast(
+      "Pilih produk."
+    );
+
+    return;
+  }
+
+  if(qty <= 0){
+
+    tampilkanToast(
+      "Qty harus lebih dari 0."
+    );
+
+    return;
+  }
+
+  tampilkanLoading(
+    "Menyimpan transaksi..."
+  );
+
+  const result =
+    await panggilApi(
+      "barangmasuk",
+      "save",
+      {
+        tanggal : tanggal,
+        idProduk : idProduk,
+        qty : qty
+      }
+    );
+
+  sembunyikanLoading();
+
+  if(!result.success){
+
+    tampilkanToast(
+      result.message ||
+      "Gagal menyimpan."
+    );
+
+    return;
+  }
+
+  tampilkanToast(
+    "Barang masuk berhasil disimpan."
+  );
+
+  resetForm();
+
+  loadDataBarangMasuk();
+
+}
+
+
+/* ==========================================
+   RESET FORM
+========================================== */
+
+function resetForm(){
+
+  document
+    .getElementById("formBarangMasuk")
+    .reset();
+
+  document
+    .getElementById("tanggal")
+    .value =
+    new Date()
+      .toISOString()
+      .split("T")[0];
+
+}
+
+
+/* ==========================================
+   SET TANGGAL HARI INI
+========================================== */
+
+function setTanggalHariIni(){
+
+  document
+    .getElementById("tanggal")
+    .value =
+    new Date()
+      .toISOString()
+      .split("T")[0];
+
+}
+
+
+/* ==========================================
+   LOAD PRODUK DROPDOWN
+========================================== */
+
+async function loadProdukDropdown(){
+
+  const result =
+    await panggilApi(
+      "masterproduk",
+      "list",
+      {
+        status:"Aktif"
+      }
+    );
+
+  if(!result.success){
+    return;
+  }
+
+  const produk =
+    result.data || [];
+
+  const select1 =
+    document.getElementById(
+      "idProduk"
+    );
+
+  const select2 =
+    document.getElementById(
+      "filterProduk"
+    );
+
+  select1.innerHTML =
+    '<option value="">Pilih Produk</option>';
+
+  select2.innerHTML =
+    '<option value="">Semua Produk</option>';
+
+  produk.forEach(function(item){
+
+    const id =
+      item["ID Produk"] ||
+      item.idProduk ||
+      item.id;
+
+    const nama =
+      item["Nama Produk"] ||
+      item.namaProduk ||
+      item.nama;
+
+    select1.innerHTML +=
+      '<option value="' +
+      id +
+      '">' +
+      escapeHtml(nama) +
+      '</option>';
+
+    select2.innerHTML +=
+      '<option value="' +
+      id +
+      '">' +
+      escapeHtml(nama) +
+      '</option>';
+
+  });
+
+}
+
+
+/* ==========================================
+   REFRESH
+========================================== */
+
+function refreshData(){
+
+  loadDataBarangMasuk();
+
+}
+
+
+/* ==========================================
+   INIT
+========================================== */
+
+async function initBarangMasuk(){
+
+  if(!guardSession()){
+    return;
+  }
+
+  try{
+
+    setTanggalHariIni();
+
+    await loadProdukDropdown();
+
+    await loadDataBarangMasuk();
+
+  }catch(err){
+
+    console.error(err);
+
+    tampilkanToast(
+      "Gagal memuat halaman."
+    );
+
+  }
+
+}
+
+
+/* ==========================================
+   EVENT LISTENER
+========================================== */
+
+document
+  .getElementById("formBarangMasuk")
+  .addEventListener(
+    "submit",
+    simpanBarangMasuk
+  );
+
+document
+  .getElementById("searchInput")
+  .addEventListener(
+    "input",
+    debounce(
+      cariData,
+      300
+    )
+  );
+
+document
+  .getElementById("filterProduk")
+  .addEventListener(
+    "change",
+    filterProduk
+  );
+
+document
+  .getElementById("btnRefresh")
+  .addEventListener(
+    "click",
+    refreshData
+  );
+
+document
+  .getElementById("btnLogout")
+  .addEventListener(
+    "click",
+    handleLogout
+  );
+
+
+/* ==========================================
+   START
+========================================== */
+
+initBarangMasuk();
+
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+      </div>
+
+    </main>
+
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+
+<script>
+
+/* ==========================================
+   GLOBAL STATE
+========================================== */
+
+let daftarProduk = [];
+
+let daftarBarangMasuk = [];
+
+</script>
