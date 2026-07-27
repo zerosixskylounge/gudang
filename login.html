@@ -1,0 +1,992 @@
+<!--
+============================================================
+FILE            : login.html
+VERSION         : 2.1.0
+PROJECT         : Zero Six Inventory
+LAST UPDATE     : 23 Juli 2026
+
+FUNGSI
+------------------------------------------------------------
+Halaman Login Zero Six Inventory
+
+DEPENDENSI
+------------------------------------------------------------
+- styles.css
+- app.js
+
+PART 1
+------------------------------------------------------------
+- HTML Structure
+- Login Layout
+- Login Specific CSS
+
+PART 2
+------------------------------------------------------------
+- PIN Handler
+- Server Connection Check
+
+PART 3
+------------------------------------------------------------
+- Login Submit
+- Session Check
+- Init
+
+============================================================
+-->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login • Zero Six Inventory</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+
+/* ==========================================================
+   LOGIN PAGE ONLY
+========================================================== */
+
+body{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:24px;
+
+    background:
+    radial-gradient(
+        circle at top left,
+        rgba(37,99,235,.08),
+        transparent 35%
+    ),
+    radial-gradient(
+        circle at bottom right,
+        rgba(220,38,38,.08),
+        transparent 35%
+    ),
+    var(--bg-body);
+
+}
+
+.login-wrapper{
+
+    width:100%;
+
+    max-width:420px;
+
+}
+
+.login-brand{
+
+    text-align:center;
+
+    margin-bottom:24px;
+
+}
+
+.login-logo{
+
+    font-size:36px;
+
+    font-weight:800;
+
+    font-family:var(--font-display);
+
+    color:var(--blue-dark);
+
+    letter-spacing:-1px;
+
+}
+
+.login-logo span{
+
+    color:var(--red);
+
+}
+
+.login-subtitle{
+
+    margin-top:6px;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    letter-spacing:2px;
+
+    text-transform:uppercase;
+
+    color:var(--text-muted);
+
+}
+
+.login-card{
+
+    background:var(--surface);
+
+    border:1px solid var(--border);
+
+    border-radius:24px;
+
+    padding:32px;
+
+    box-shadow:var(--shadow-lg);
+
+}
+
+.login-title{
+
+    font-size:24px;
+
+    font-weight:800;
+
+    color:var(--text);
+
+    margin-bottom:8px;
+
+}
+
+.login-description{
+
+    font-size:14px;
+
+    color:var(--text-muted);
+
+    margin-bottom:28px;
+
+    line-height:1.6;
+
+}
+
+.login-form{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+}
+
+.pin-container{
+
+    display:flex;
+
+    gap:10px;
+
+}
+
+.pin-box{
+
+    flex:1;
+
+    height:58px;
+
+    border:2px solid var(--border);
+
+    border-radius:14px;
+
+    text-align:center;
+
+    font-size:24px;
+
+    font-weight:700;
+
+    background:#fff;
+
+    transition:.2s ease;
+
+}
+
+.pin-box:focus{
+
+    outline:none;
+
+    border-color:var(--blue);
+
+    box-shadow:0 0 0 4px rgba(37,99,235,.12);
+
+}
+
+.pin-box.filled{
+
+    border-color:var(--blue);
+
+    background:#eff6ff;
+
+}
+
+.btn-login{
+
+    width:100%;
+
+    height:52px;
+
+    margin-top:6px;
+
+}
+
+.login-status{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-top:20px;
+
+    font-size:13px;
+
+    color:var(--text-muted);
+
+}
+
+.status-dot{
+
+    width:10px;
+
+    height:10px;
+
+    border-radius:50%;
+
+}
+
+.status-online{
+
+    background:#16a34a;
+
+}
+
+.status-offline{
+
+    background:#dc2626;
+
+}
+
+.status-loading{
+
+    background:#facc15;
+
+    animation:pulse 1s infinite;
+
+}
+
+@keyframes pulse{
+
+    0%{
+        opacity:.3;
+    }
+
+    50%{
+        opacity:1;
+    }
+
+    100%{
+        opacity:.3;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .login-card{
+
+        padding:24px;
+
+    }
+
+    .pin-box{
+
+        height:54px;
+
+        font-size:22px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="login-wrapper">
+
+    <!-- =========================================
+         BRAND
+    ========================================== -->
+
+    <div class="login-brand">
+
+        <div class="login-logo">
+            Zero<span>Six</span>
+        </div>
+
+        <div class="login-subtitle">
+            Sky Lounge Inventory
+        </div>
+
+    </div>
+
+    <!-- =========================================
+         LOGIN CARD
+    ========================================== -->
+
+    <div class="login-card">
+
+        <h1 class="login-title">
+            Login Sistem
+        </h1>
+
+        <p class="login-description">
+            Masukkan username dan PIN untuk
+            mengakses Zero Six Inventory.
+        </p>
+
+        <form
+            id="loginForm"
+            class="login-form"
+            autocomplete="off"
+        >
+
+            <!-- Username -->
+
+            <div class="field">
+
+                <label class="field-label">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    class="input-text"
+                    placeholder="Masukkan Username"
+                    maxlength="30"
+                    required
+                >
+
+            </div>
+
+            <!-- PIN -->
+
+            <div class="field">
+
+                <label class="field-label">
+                    PIN (4 Digit)
+                </label>
+
+                <div class="pin-container">
+
+                    <input
+                        type="password"
+                        maxlength="1"
+                        class="pin-box"
+                        id="pin1"
+                        inputmode="numeric"
+                    >
+
+                    <input
+                        type="password"
+                        maxlength="1"
+                        class="pin-box"
+                        id="pin2"
+                        inputmode="numeric"
+                    >
+
+                    <input
+                        type="password"
+                        maxlength="1"
+                        class="pin-box"
+                        id="pin3"
+                        inputmode="numeric"
+                    >
+
+                    <input
+                        type="password"
+                        maxlength="1"
+                        class="pin-box"
+                        id="pin4"
+                        inputmode="numeric"
+                    >
+
+                </div>
+
+            </div>
+
+            <!-- Error -->
+
+            <div
+                id="errorBox"
+                class="alert alert-danger"
+                style="display:none;"
+            ></div>
+
+            <!-- Submit -->
+
+            <button
+                type="submit"
+                id="btnLogin"
+                class="btn btn-primary btn-login"
+            >
+                Masuk Sistem
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- =========================================
+         SERVER STATUS
+    ========================================== -->
+
+    <div class="login-status">
+
+        <span
+            id="statusDot"
+            class="status-dot status-loading"
+        ></span>
+
+        <span id="statusText">
+            Menghubungkan ke server...
+        </span>
+
+    </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+
+<script>
+
+/* ==========================================================
+   PART 2
+   PIN HANDLER
+========================================================== */
+
+function getPinBoxes(){
+
+    return [
+        document.getElementById("pin1"),
+        document.getElementById("pin2"),
+        document.getElementById("pin3"),
+        document.getElementById("pin4")
+    ];
+
+}
+
+function initPinHandler(){
+
+    const pinBoxes = getPinBoxes();
+
+    pinBoxes.forEach(function(box,index){
+
+        box.addEventListener("input",function(){
+
+            this.value =
+            this.value
+            .replace(/[^0-9]/g,"")
+            .slice(0,1);
+
+            if(this.value){
+
+                this.classList.add("filled");
+
+            }else{
+
+                this.classList.remove("filled");
+
+            }
+
+            if(
+                this.value &&
+                index < pinBoxes.length - 1
+            ){
+
+                pinBoxes[index + 1].focus();
+
+            }
+
+        });
+
+        box.addEventListener("keydown",function(e){
+
+            if(
+                e.key === "Backspace" &&
+                this.value === "" &&
+                index > 0
+            ){
+
+                pinBoxes[index - 1].focus();
+
+            }
+
+        });
+
+        box.addEventListener("paste",function(e){
+
+            e.preventDefault();
+
+            const pasted =
+            (
+                e.clipboardData ||
+                window.clipboardData
+            )
+            .getData("text")
+            .replace(/\D/g,"")
+            .slice(0,4);
+
+            if(!pasted) return;
+
+            pasted
+            .split("")
+            .forEach(function(num,i){
+
+                if(pinBoxes[i]){
+
+                    pinBoxes[i].value = num;
+
+                    pinBoxes[i]
+                    .classList
+                    .add("filled");
+
+                }
+
+            });
+
+            if(pasted.length < 4){
+
+                pinBoxes[pasted.length].focus();
+
+            }else{
+
+                pinBoxes[3].focus();
+
+            }
+
+        });
+
+    });
+
+}
+
+
+/* ==========================================================
+   PIN VALUE
+========================================================== */
+
+function getPinValue(){
+
+    return getPinBoxes()
+    .map(function(box){
+
+        return box.value;
+
+    })
+    .join("");
+
+}
+
+function clearPin(){
+
+    getPinBoxes()
+    .forEach(function(box){
+
+        box.value = "";
+
+        box.classList.remove("filled");
+
+    });
+
+    document
+    .getElementById("pin1")
+    .focus();
+
+}
+
+
+/* ==========================================================
+   ERROR HANDLER
+========================================================== */
+
+function showError(message){
+
+    const box =
+    document.getElementById("errorBox");
+
+    box.style.display = "block";
+
+    box.textContent = message;
+
+}
+
+function hideError(){
+
+    const box =
+    document.getElementById("errorBox");
+
+    box.style.display = "none";
+
+    box.textContent = "";
+
+}
+
+
+/* ==========================================================
+   SERVER CONNECTION CHECK
+========================================================== */
+
+function cekKoneksiServer(){
+
+    const statusDot =
+    document.getElementById("statusDot");
+
+    const statusText =
+    document.getElementById("statusText");
+
+    fetch(API_URL)
+
+        .then(function(response){
+
+            return response.json();
+
+        })
+
+        .then(function(result){
+
+            if(!result.success){
+
+                throw new Error();
+
+            }
+
+            statusDot.className =
+            "status-dot status-online";
+
+            statusText.textContent =
+            "Server Online";
+
+        })
+
+        .catch(function(){
+
+            statusDot.className =
+            "status-dot status-offline";
+
+            statusText.textContent =
+            "Server Offline";
+
+        });
+
+}
+
+
+/* ==========================================================
+   AUTO HIDE ERROR
+========================================================== */
+
+document
+.getElementById("username")
+.addEventListener("input",hideError);
+
+getPinBoxes()
+.forEach(function(box){
+
+    box.addEventListener(
+        "input",
+        hideError
+    );
+
+});
+
+</script>
+<script>
+
+/* ==========================================================
+   PART 3
+   LOGIN SUBMIT
+========================================================== */
+
+async function handleLoginSubmit(e){
+
+    e.preventDefault();
+
+    hideError();
+
+    const username =
+    document
+    .getElementById("username")
+    .value
+    .trim();
+
+    const pin = getPinValue();
+
+    if(!username){
+
+        showError(
+            "Username wajib diisi."
+        );
+
+        return;
+
+    }
+
+    if(pin.length !== 4){
+
+        showError(
+            "PIN harus terdiri dari 4 digit."
+        );
+
+        return;
+
+    }
+
+    const btn =
+    document.getElementById("btnLogin");
+
+    const originalText =
+    btn.textContent;
+
+    btn.disabled = true;
+
+    btn.textContent =
+    "Memeriksa...";
+
+    try{
+
+        tampilkanLoading(
+            "Memverifikasi akun..."
+        );
+
+        const result =
+        await panggilApi(
+            "auth",
+            "login",
+            {
+                username : username,
+                pin      : pin
+            }
+        );
+
+        sembunyikanLoading();
+
+        if(!result.success){
+
+            showError(
+                result.message ||
+                "Login gagal."
+            );
+
+            clearPin();
+
+            btn.disabled = false;
+
+            btn.textContent =
+            originalText;
+
+            return;
+
+        }
+
+        localStorage.setItem(
+            SESSION_KEY,
+            JSON.stringify(
+                result.data
+            )
+        );
+
+        tampilkanToast(
+            "Login berhasil",
+            "success"
+        );
+
+        setTimeout(function(){
+
+            window.location.href =
+            "dashboard.html";
+
+        },500);
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        sembunyikanLoading();
+
+        showError(
+            "Tidak dapat terhubung ke server."
+        );
+
+        btn.disabled = false;
+
+        btn.textContent =
+        originalText;
+
+    }
+
+}
+
+
+/* ==========================================================
+   SESSION CHECK
+========================================================== */
+
+async function cekSessionAktif(){
+
+    const raw =
+    localStorage.getItem(
+        SESSION_KEY
+    );
+
+    if(!raw){
+
+        return;
+
+    }
+
+    try{
+
+        const session =
+        JSON.parse(raw);
+
+        if(
+            !session ||
+            !session.token
+        ){
+
+            localStorage.removeItem(
+                SESSION_KEY
+            );
+
+            return;
+
+        }
+
+        const result =
+        await panggilApi(
+            "auth",
+            "validate"
+        );
+
+        if(
+            result.success
+        ){
+
+            window.location.href =
+            "dashboard.html";
+
+            return;
+
+        }
+
+        localStorage.removeItem(
+            SESSION_KEY
+        );
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        localStorage.removeItem(
+            SESSION_KEY
+        );
+
+    }
+
+}
+
+
+/* ==========================================================
+   ENTER KEY SUPPORT
+========================================================== */
+
+function initEnterKey(){
+
+    getPinBoxes()
+    .forEach(function(box){
+
+        box.addEventListener(
+            "keyup",
+            function(e){
+
+                if(
+                    e.key === "Enter"
+                ){
+
+                    document
+                    .getElementById(
+                        "loginForm"
+                    )
+                    .requestSubmit();
+
+                }
+
+            }
+        );
+
+    });
+
+}
+
+
+/* ==========================================================
+   INIT PAGE
+========================================================== */
+
+document
+.addEventListener(
+    "DOMContentLoaded",
+    async function(){
+
+        await cekSessionAktif();
+
+        initPinHandler();
+
+        initEnterKey();
+
+        cekKoneksiServer();
+
+        document
+        .getElementById(
+            "username"
+        )
+        .focus();
+
+        document
+        .getElementById(
+            "loginForm"
+        )
+        .addEventListener(
+            "submit",
+            handleLoginSubmit
+        );
+
+    }
+);
+
+</script>
+</body>
+</html>

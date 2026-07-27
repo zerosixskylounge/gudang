@@ -1,0 +1,955 @@
+<!--
+============================================================
+FILE            : dashboard.html
+VERSION         : 2.1.0
+PROJECT         : Zero Six Inventory
+LAST UPDATE     : 23 Juli 2026
+
+FUNGSI
+------------------------------------------------------------
+Dashboard utama setelah login.
+
+DATA API
+------------------------------------------------------------
+dashboard.summary
+dashboard.activity
+dashboard.topproduct
+
+DEPENDENSI
+------------------------------------------------------------
+styles.css
+app.js
+
+============================================================
+-->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard • Zero Six Inventory</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="sidebar-logo">
+                Zero<span>Six</span>
+            </div>
+
+            <div class="sidebar-subtitle">
+                Sky Lounge Inventory
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <a href="dashboard.html"
+               class="sidebar-link active">
+
+                Dashboard
+
+            </a>
+
+            <a href="produk.html"
+               class="sidebar-link">
+
+                Master Produk
+
+            </a>
+
+            <a href="anggota.html"
+               class="sidebar-link">
+
+                Anggota
+
+            </a>
+
+            <a href="barangmasuk.html"
+               class="sidebar-link">
+
+                Barang Masuk
+
+            </a>
+
+            <a href="barangkeluar.html"
+               class="sidebar-link">
+
+                Barang Keluar
+
+            </a>
+
+            <a href="stockopname.html"
+               class="sidebar-link">
+
+                Stock Opname
+
+            </a>
+
+            <a href="logharga.html"
+               class="sidebar-link">
+
+                Log Harga
+
+            </a>
+
+            <a href="hpp.html"
+               class="sidebar-link">
+
+                Grafik HPP
+
+            </a>
+
+            <a href="laporan.html"
+               class="sidebar-link">
+
+                Laporan
+
+            </a>
+
+            <a href="pengaturan.html"
+               class="sidebar-link">
+
+                Pengaturan
+
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            Zero Six Inventory v2.1.0
+
+        </div>
+
+    </aside>
+
+    <!-- =====================================================
+         CONTENT AREA
+    ====================================================== -->
+
+    <main class="content-area">
+
+        <!-- =================================================
+             NAVBAR
+        ================================================== -->
+
+        <header class="navbar">
+
+            <div>
+
+                <h1 class="navbar-title">
+
+                    Dashboard
+
+                </h1>
+
+                <div
+                    class="navbar-date"
+                    id="tanggalHariIni">
+
+                    -
+
+                </div>
+
+            </div>
+
+            <div class="navbar-right">
+
+                <div class="navbar-user">
+
+                    <div
+                        class="navbar-user-name"
+                        id="userNama">
+
+                        -
+
+                    </div>
+
+                    <div
+                        class="navbar-user-role"
+                        id="userRole">
+
+                        -
+
+                    </div>
+
+                </div>
+
+                <button
+                    id="btnLogout"
+                    class="btn btn-danger">
+
+                    Keluar
+
+                </button>
+
+            </div>
+
+        </header>
+
+        <!-- =================================================
+             MAIN CONTENT
+        ================================================== -->
+
+        <section class="page-content">
+
+            <!-- Loading -->
+
+            <div
+                id="loadingState"
+                class="loading-card">
+
+                Memuat Dashboard...
+
+            </div>
+
+            <!-- Error -->
+
+            <div
+                id="errorState"
+                class="alert alert-danger"
+                style="display:none;">
+
+            </div>
+
+            <!-- Dashboard Body -->
+
+            <div
+                id="dashboardBody"
+                style="display:none;">
+
+                <!-- =========================================
+                     ROW 1
+                ========================================== -->
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            Total Produk
+                        </div>
+
+                        <div
+                            id="statTotalProduk"
+                            class="stat-value">
+
+                            0
+
+                        </div>
+
+                    </div>
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            Produk Aktif
+                        </div>
+
+                        <div
+                            id="statAktif"
+                            class="stat-value">
+
+                            0
+
+                        </div>
+
+                    </div>
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            Total Stock
+                        </div>
+
+                        <div
+                            id="statTotalStock"
+                            class="stat-value">
+
+                            0
+
+                        </div>
+
+                    </div>
+
+                    <div class="stat-card">
+
+                        <div class="stat-title">
+                            Opname Bulan Ini
+                        </div>
+
+                        <div
+                            id="statOpname"
+                            class="stat-value">
+
+                            0
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- =========================================
+                     ROW 2
+                ========================================== -->
+
+                <div class="dashboard-grid">
+
+                    <div class="widget-card">
+
+                        <h2 class="widget-title">
+
+                            Status Stock
+
+                        </h2>
+
+                        <div id="stockList">
+
+                            Loading...
+
+                        </div>
+
+                    </div>
+
+                    <div class="widget-card">
+
+                        <h2 class="widget-title">
+
+                            Ringkasan Transaksi
+
+                        </h2>
+
+                        <div id="transaksiSummary">
+
+                            Loading...
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- =========================================
+                     ROW 3
+                ========================================== -->
+
+                <div class="dashboard-grid">
+
+                    <div class="widget-card">
+
+                        <h2 class="widget-title">
+
+                            Aktivitas Terbaru
+
+                        </h2>
+
+                        <div id="activityList">
+
+                            Loading...
+
+                        </div>
+
+                    </div>
+
+                    <div class="widget-card">
+
+                        <h2 class="widget-title">
+
+                            Top Produk Keluar
+
+                        </h2>
+
+                        <div id="topProductList">
+
+                            Loading...
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- =========================================
+                     ROW 4
+                ========================================== -->
+
+                <div class="widget-card">
+
+                    <h2 class="widget-title">
+
+                        Ringkasan WhatsApp
+
+                    </h2>
+
+                    <div class="wa-actions">
+
+                        <button
+                            id="btnSalinWa"
+                            class="btn btn-primary">
+
+                            Salin Ringkasan
+
+                        </button>
+
+                        <button
+                            id="btnLihatText"
+                            class="btn btn-secondary">
+
+                            Lihat Teks
+
+                        </button>
+
+                    </div>
+
+                    <textarea
+                        id="textCopyArea"
+                        class="textarea-copy"
+                        readonly>
+
+                    </textarea>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+
+<script>
+
+/* ============================================================
+ * DASHBOARD.HTML v2.1.0
+ * PART 2
+ * Dashboard Logic
+ * ============================================================ */
+
+let dashboardSummary = null;
+let dashboardActivity = [];
+let dashboardTopProduct = [];
+let textCopyDashboard = "";
+
+/* ============================================================
+ * LOAD DASHBOARD
+ * ============================================================ */
+async function loadDashboard(){
+
+  tampilkanLoading("Memuat Dashboard...");
+
+  try{
+
+    const results = await Promise.all([
+      panggilApi("dashboard","summary"),
+      panggilApi("dashboard","activity"),
+      panggilApi("dashboard","topproduct")
+    ]);
+
+    const summary = results[0];
+    const activity = results[1];
+    const topProduct = results[2];
+
+    if(!summary.success){
+
+      tanganiJikaSessionGagal(summary.message);
+
+      throw new Error(
+        summary.message || "Gagal memuat dashboard."
+      );
+
+    }
+
+    dashboardSummary = summary.data;
+
+    if(activity.success){
+      dashboardActivity = activity.data || [];
+    }
+
+    if(topProduct.success){
+      dashboardTopProduct = topProduct.data || [];
+    }
+
+    renderDashboard();
+
+  }catch(error){
+
+    console.error(error);
+
+    tampilkanToast(
+      error.message || "Gagal memuat dashboard."
+    );
+
+  }finally{
+
+    sembunyikanLoading();
+
+  }
+
+}
+
+
+/* ============================================================
+ * RENDER DASHBOARD
+ * ============================================================ */
+function renderDashboard(){
+
+  renderRingkasanStock();
+
+  renderStatusStock();
+
+  renderRingkasanTransaksi();
+
+  renderActivity();
+
+  renderTopProduct();
+
+}
+
+
+/* ============================================================
+ * RINGKASAN STOCK
+ * ============================================================ */
+function renderRingkasanStock(){
+
+  const data = dashboardSummary.ringkasanStock;
+
+  document.getElementById("statTotalProduk").textContent =
+    formatAngka(data.totalProduk);
+
+  document.getElementById("statAktif").textContent =
+    formatAngka(data.aktif);
+
+  document.getElementById("statNonaktif").textContent =
+    formatAngka(data.nonaktif);
+
+  document.getElementById("statTotalStock").textContent =
+    formatAngka(data.totalStock);
+
+}
+
+
+/* ============================================================
+ * STATUS STOCK
+ * ============================================================ */
+function renderStatusStock(){
+
+  const container =
+    document.getElementById("stockList");
+
+  container.innerHTML = "";
+
+  const data = dashboardSummary.statusStock || [];
+
+  if(data.length === 0){
+
+    container.innerHTML =
+      '<div class="empty-state">Tidak ada data.</div>';
+
+    return;
+
+  }
+
+  data.forEach(function(item){
+
+    const row = document.createElement("div");
+
+    let badgeClass = "badge-success";
+
+    if(item.status === "HABIS"){
+      badgeClass = "badge-danger";
+    }
+    else if(item.status === "RESTOCK"){
+      badgeClass = "badge-warning";
+    }
+
+    row.className = "stock-row";
+
+    row.innerHTML =
+      `
+      <div class="stock-left">
+        <div class="stock-name">
+          ${escapeHtml(item.namaProduk)}
+        </div>
+
+        <div class="stock-id">
+          ${escapeHtml(item.idProduk)}
+        </div>
+      </div>
+
+      <div class="stock-right">
+
+        <span class="badge ${badgeClass}">
+          ${escapeHtml(item.status)}
+        </span>
+
+        <div class="stock-qty">
+          ${item.stock}
+        </div>
+
+      </div>
+      `;
+
+    container.appendChild(row);
+
+  });
+
+}
+
+
+/* ============================================================
+ * RINGKASAN TRANSAKSI
+ * ============================================================ */
+function renderRingkasanTransaksi(){
+
+  const trx =
+    dashboardSummary.ringkasanTransaksi;
+
+  document.getElementById("jumlahMasuk").textContent =
+    formatAngka(
+      trx.barangMasuk.jumlahTransaksi
+    );
+
+  document.getElementById("qtyMasuk").textContent =
+    formatAngka(
+      trx.barangMasuk.totalQty
+    );
+
+  document.getElementById("jumlahKeluar").textContent =
+    formatAngka(
+      trx.barangKeluar.jumlahTransaksi
+    );
+
+  document.getElementById("qtyKeluar").textContent =
+    formatAngka(
+      trx.barangKeluar.totalQty
+    );
+
+  document.getElementById("stockOpname").textContent =
+    formatAngka(
+      dashboardSummary.stockOpnameBulanIni
+    );
+
+  textCopyDashboard =
+    dashboardSummary.textCopy || "";
+
+}
+
+</script>
+<script>
+
+/* ============================================================
+ * ACTIVITY TERBARU
+ * ============================================================ */
+function renderActivity(){
+
+  const container =
+    document.getElementById("activityList");
+
+  container.innerHTML = "";
+
+  if(
+    !dashboardActivity ||
+    dashboardActivity.length === 0
+  ){
+
+    container.innerHTML =
+      '<div class="empty-state">Belum ada aktivitas.</div>';
+
+    return;
+
+  }
+
+  dashboardActivity.forEach(function(item){
+
+    const card = document.createElement("div");
+
+    card.className = "activity-card";
+
+    card.innerHTML =
+      `
+      <div class="activity-top">
+
+        <div class="activity-action">
+          ${escapeHtml(item.Aksi || "-")}
+        </div>
+
+        <div class="activity-date">
+          ${escapeHtml(item.Tanggal || "-")}
+        </div>
+
+      </div>
+
+      <div class="activity-user">
+        ${escapeHtml(item.User || "-")}
+      </div>
+
+      <div class="activity-description">
+        ${escapeHtml(item.Keterangan || "-")}
+      </div>
+      `;
+
+    container.appendChild(card);
+
+  });
+
+}
+
+
+/* ============================================================
+ * TOP PRODUCT
+ * ============================================================ */
+function renderTopProduct(){
+
+  const container =
+    document.getElementById("topProductList");
+
+  container.innerHTML = "";
+
+  if(
+    !dashboardTopProduct ||
+    dashboardTopProduct.length === 0
+  ){
+
+    container.innerHTML =
+      '<div class="empty-state">Belum ada data.</div>';
+
+    return;
+
+  }
+
+  dashboardTopProduct.forEach(function(item,index){
+
+    const row = document.createElement("div");
+
+    row.className = "top-product-row";
+
+    row.innerHTML =
+      `
+      <div class="top-rank">
+        #${index + 1}
+      </div>
+
+      <div class="top-name">
+        ${escapeHtml(item.nama || "-")}
+      </div>
+
+      <div class="top-qty">
+        ${formatAngka(item.qty || 0)}
+      </div>
+      `;
+
+    container.appendChild(row);
+
+  });
+
+}
+
+
+/* ============================================================
+ * COPY WHATSAPP
+ * ============================================================ */
+async function salinRingkasanWA(){
+
+  if(!textCopyDashboard){
+
+    tampilkanToast(
+      "Tidak ada data untuk disalin."
+    );
+
+    return;
+
+  }
+
+  try{
+
+    await navigator.clipboard.writeText(
+      textCopyDashboard
+    );
+
+    tampilkanToast(
+      "Ringkasan berhasil disalin."
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    tampilkanToast(
+      "Gagal menyalin teks."
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+ * LIHAT TEXT COPY
+ * ============================================================ */
+function tampilkanTextCopy(){
+
+  if(!textCopyDashboard){
+
+    tampilkanToast(
+      "Tidak ada data."
+    );
+
+    return;
+
+  }
+
+  bukaModal(
+    "Ringkasan Dashboard",
+    `
+      <pre style="
+        white-space:pre-wrap;
+        font-family:inherit;
+        line-height:1.6;
+        margin:0;
+      ">
+${escapeHtml(textCopyDashboard)}
+      </pre>
+    `
+  );
+
+}
+
+
+/* ============================================================
+ * USER INFO
+ * ============================================================ */
+function tampilkanUserInfo(){
+
+  const session = getSession();
+
+  if(!session) return;
+
+  document.getElementById("userNama").textContent =
+    session.nama || "-";
+
+  document.getElementById("userRole").textContent =
+    session.role || "-";
+
+}
+
+
+/* ============================================================
+ * TANGGAL HARI INI
+ * ============================================================ */
+function tampilkanTanggalHariIni(){
+
+  const el =
+    document.getElementById("tanggalHariIni");
+
+  if(!el) return;
+
+  const sekarang = new Date();
+
+  el.textContent =
+    sekarang.toLocaleDateString(
+      "id-ID",
+      {
+        weekday : "long",
+        day     : "numeric",
+        month   : "long",
+        year    : "numeric"
+      }
+    );
+
+}
+
+
+/* ============================================================
+ * LOGOUT
+ * ============================================================ */
+async function logoutDashboard(){
+
+  const konfirmasi = confirm(
+    "Keluar dari aplikasi?"
+  );
+
+  if(!konfirmasi){
+    return;
+  }
+
+  await handleLogout();
+
+}
+
+
+/* ============================================================
+ * INIT DASHBOARD
+ * ============================================================ */
+async function initDashboard(){
+
+  if(!guardSession()){
+    return;
+  }
+
+  tampilkanUserInfo();
+
+  tampilkanTanggalHariIni();
+
+  document
+    .getElementById("btnLogout")
+    .addEventListener(
+      "click",
+      logoutDashboard
+    );
+
+  document
+    .getElementById("btnSalinWA")
+    .addEventListener(
+      "click",
+      salinRingkasanWA
+    );
+
+  document
+    .getElementById("btnLihatTeks")
+    .addEventListener(
+      "click",
+      tampilkanTextCopy
+    );
+
+  await loadDashboard();
+
+}
+
+
+/* ============================================================
+ * START
+ * ============================================================ */
+document.addEventListener(
+  "DOMContentLoaded",
+  initDashboard
+);
+
+</script>
+</body>
+</html>

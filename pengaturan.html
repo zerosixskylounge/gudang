@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Pengaturan · Zero Six Inventory</title>
+
+<link rel="stylesheet" href="styles.css">
+
+<script src="app.js"></script>
+
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+
+      <div class="sidebar-logo">
+        Zero<span>Six</span>
+      </div>
+
+      <div class="sidebar-subtitle">
+        Inventory System
+      </div>
+
+    </div>
+
+    <nav class="sidebar-menu">
+
+      <a href="dashboard.html">Dashboard</a>
+      <a href="produk.html">Master Produk</a>
+      <a href="anggota.html">Anggota</a>
+      <a href="barangmasuk.html">Barang Masuk</a>
+      <a href="barangkeluar.html">Barang Keluar</a>
+      <a href="stockopname.html">Stock Opname</a>
+      <a href="logharga.html">Log Harga</a>
+      <a href="hpp.html">Grafik HPP</a>
+      <a href="laporan.html">Laporan</a>
+
+      <a
+        href="pengaturan.html"
+        class="active"
+      >
+        Pengaturan
+      </a>
+
+    </nav>
+
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <header class="navbar">
+
+      <div>
+
+        <h1>
+          Pengaturan Sistem
+        </h1>
+
+        <p>
+          Profil, keamanan dan konfigurasi
+        </p>
+
+      </div>
+
+      <button
+        id="btnLogout"
+        class="btn-danger"
+      >
+        Logout
+      </button>
+
+    </header>
+
+    <!-- PROFIL -->
+    <section class="card">
+
+      <h2>
+        Profil Pengguna
+      </h2>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>Nama</label>
+
+          <input
+            type="text"
+            id="namaUser"
+            readonly
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label>Username</label>
+
+          <input
+            type="text"
+            id="usernameUser"
+            readonly
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label>Role</label>
+
+          <input
+            type="text"
+            id="roleUser"
+            readonly
+          >
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- GANTI PIN -->
+    <section class="card">
+
+      <h2>
+        Ganti PIN
+      </h2>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>PIN Lama</label>
+
+          <input
+            type="password"
+            maxlength="4"
+            id="pinLama"
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label>PIN Baru</label>
+
+          <input
+            type="password"
+            maxlength="4"
+            id="pinBaru"
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label>Konfirmasi PIN</label>
+
+          <input
+            type="password"
+            maxlength="4"
+            id="pinKonfirmasi"
+          >
+
+        </div>
+
+      </div>
+
+      <button
+        id="btnGantiPin"
+        class="btn-primary"
+      >
+        Simpan PIN Baru
+      </button>
+
+    </section>
+
+    <!-- SESSION -->
+    <section class="card">
+
+      <h2>
+        Session Aktif
+      </h2>
+
+      <div class="table-responsive">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Login Time</th>
+              <th>Expired</th>
+              <th>Status</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="sessionTable">
+
+            <tr>
+
+              <td colspan="3">
+                Memuat...
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <button
+        id="btnLogoutAll"
+        class="btn-warning"
+      >
+        Logout Semua Device
+      </button>
+
+    </section>
+
+    <!-- SISTEM -->
+    <section class="card">
+
+      <h2>
+        Informasi Sistem
+      </h2>
+
+      <div class="info-grid">
+
+        <div class="info-item">
+
+          <span>Nama Aplikasi</span>
+
+          <strong>
+            Zero Six Inventory
+          </strong>
+
+        </div>
+
+        <div class="info-item">
+
+          <span>Versi Aplikasi</span>
+
+          <strong>
+            v2.1.0
+          </strong>
+
+        </div>
+
+        <div class="info-item">
+
+          <span>Database</span>
+
+          <strong>
+            v1.1.0
+          </strong>
+
+        </div>
+
+        <div class="info-item">
+
+          <span>Backend</span>
+
+          <strong>
+            Google Apps Script
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- BACKUP -->
+    <section class="card">
+
+      <h2>
+        Backup Database
+      </h2>
+
+      <p>
+        Download seluruh data spreadsheet ke format Excel.
+      </p>
+
+      <button
+        id="btnBackup"
+        class="btn-success"
+      >
+        Download Backup
+      </button>
+
+    </section>
+
+    <!-- TENTANG -->
+    <section class="card">
+
+      <h2>
+        Tentang
+      </h2>
+
+      <p>
+
+        Zero Six Inventory dibuat untuk
+        mengelola persediaan gudang
+        Zero Six Sky Lounge.
+
+      </p>
+
+      <p>
+
+        © 2026 Zero Six Sky Lounge
+
+      </p>
+
+    </section>
+
+  </main>
+
+</div>
+
+<script>
+  /* ==========================================================
+PART 2
+PROFILE
+SESSION
+PIN
+LOGOUT ALL
+========================================================== */
+
+let profileUser = {};
+let sessionData = [];
+
+/* ==========================================================
+LOAD PROFILE
+========================================================== */
+async function loadProfile(){
+
+  try{
+
+    const result =
+      await panggilApi(
+        "auth",
+        "profile",
+        {}
+      );
+
+    if(!result.success){
+
+      tampilkanToast(
+        result.message ||
+        "Gagal memuat profil."
+      );
+
+      return;
+    }
+
+    profileUser =
+      result.data || {};
+
+    renderProfile();
+
+  }catch(error){
+
+    tampilkanToast(
+      "Tidak dapat memuat profil."
+    );
+
+  }
+
+}
+
+/* ==========================================================
+RENDER PROFILE
+========================================================== */
+function renderProfile(){
+
+  document.getElementById(
+    "namaUser"
+  ).value =
+    profileUser.nama || "";
+
+  document.getElementById(
+    "usernameUser"
+  ).value =
+    profileUser.username || "";
+
+  document.getElementById(
+    "roleUser"
+  ).value =
+    profileUser.role || "";
+
+}
+
+/* ==========================================================
+LOAD SESSION
+========================================================== */
+async function loadSession(){
+
+  try{
+
+    const result =
+      await panggilApi(
+        "auth",
+        "session",
+        {}
+      );
+
+    if(!result.success){
+
+      tampilkanToast(
+        result.message ||
+        "Gagal memuat session."
+      );
+
+      return;
+    }
+
+    sessionData =
+      result.data || [];
+
+    renderSession();
+
+  }catch(error){
+
+    tampilkanToast(
+      "Tidak dapat memuat session."
+    );
+
+  }
+
+}
+
+/* ==========================================================
+RENDER SESSION
+========================================================== */
+function renderSession(){
+
+  const tbody =
+    document.getElementById(
+      "sessionTable"
+    );
+
+  if(
+    sessionData.length === 0
+  ){
+
+    tbody.innerHTML = `
+
+      <tr>
+        <td colspan="3">
+          Tidak ada session aktif.
+        </td>
+      </tr>
+
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML =
+    sessionData.map(function(item){
+
+      return `
+
+        <tr>
+
+          <td>
+            ${formatTanggalJam(
+              item.loginTime
+            )}
+          </td>
+
+          <td>
+            ${formatTanggalJam(
+              item.expiredTime
+            )}
+          </td>
+
+          <td>
+
+            <span class="
+              badge
+              ${
+                item.status === "AKTIF"
+                ? "badge-success"
+                : "badge-danger"
+              }
+            ">
+
+              ${item.status}
+
+            </span>
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+
+}
+
+/* ==========================================================
+GANTI PIN
+========================================================== */
+async function gantiPin(){
+
+  const pinLama =
+    document
+      .getElementById(
+        "pinLama"
+      )
+      .value
+      .trim();
+
+  const pinBaru =
+    document
+      .getElementById(
+        "pinBaru"
+      )
+      .value
+      .trim();
+
+  const pinKonfirmasi =
+    document
+      .getElementById(
+        "pinKonfirmasi"
+      )
+      .value
+      .trim();
+
+  if(
+    !/^\d{4}$/.test(pinLama)
+  ){
+
+    tampilkanToast(
+      "PIN lama harus 4 digit."
+    );
+
+    return;
+  }
+
+  if(
+    !/^\d{4}$/.test(pinBaru)
+  ){
+
+    tampilkanToast(
+      "PIN baru harus 4 digit."
+    );
+
+    return;
+  }
+
+  if(
+    pinBaru !== pinKonfirmasi
+  ){
+
+    tampilkanToast(
+      "Konfirmasi PIN tidak sama."
+    );
+
+    return;
+  }
+
+  try{
+
+    tampilkanLoading();
+
+    const result =
+      await panggilApi(
+        "auth",
+        "changepin",
+        {
+          pinLama:pinLama,
+          pinBaru:pinBaru
+        }
+      );
+
+    sembunyikanLoading();
+
+    if(!result.success){
+
+      tampilkanToast(
+        result.message ||
+        "Gagal mengganti PIN."
+      );
+
+      return;
+    }
+
+    tampilkanToast(
+      "PIN berhasil diperbarui."
+    );
+
+    document.getElementById(
+      "pinLama"
+    ).value = "";
+
+    document.getElementById(
+      "pinBaru"
+    ).value = "";
+
+    document.getElementById(
+      "pinKonfirmasi"
+    ).value = "";
+
+  }catch(error){
+
+    sembunyikanLoading();
+
+    tampilkanToast(
+      "Tidak dapat menghubungi server."
+    );
+
+  }
+
+}
+
+/* ==========================================================
+LOGOUT SEMUA DEVICE
+========================================================== */
+async function logoutSemuaDevice(){
+
+  const konfirmasi =
+    confirm(
+      "Logout semua device?"
+    );
+
+  if(!konfirmasi){
+
+    return;
+  }
+
+  try{
+
+    tampilkanLoading();
+
+    const result =
+      await panggilApi(
+        "auth",
+        "logoutall",
+        {}
+      );
+
+    sembunyikanLoading();
+
+    if(!result.success){
+
+      tampilkanToast(
+        result.message ||
+        "Gagal logout semua device."
+      );
+
+      return;
+    }
+
+    tampilkanToast(
+      "Semua session berhasil ditutup."
+    );
+
+    await loadSession();
+
+  }catch(error){
+
+    sembunyikanLoading();
+
+    tampilkanToast(
+      "Tidak dapat menghubungi server."
+    );
+
+  }
+
+}
+/* ==========================================================
+PART 3 FINAL
+BACKUP
+EVENT
+INIT
+========================================================== */
+
+/* ==========================================================
+BACKUP DATABASE
+========================================================== */
+async function backupDatabase(){
+
+  try{
+
+    tampilkanLoading();
+
+    const result =
+      await panggilApi(
+        "pengaturan",
+        "backup",
+        {}
+      );
+
+    sembunyikanLoading();
+
+    if(!result.success){
+
+      tampilkanToast(
+        result.message ||
+        "Backup gagal."
+      );
+
+      return;
+    }
+
+    if(result.data?.url){
+
+      window.open(
+        result.data.url,
+        "_blank"
+      );
+
+    }
+
+    tampilkanToast(
+      "Backup berhasil dibuat."
+    );
+
+  }catch(error){
+
+    sembunyikanLoading();
+
+    tampilkanToast(
+      "Tidak dapat membuat backup."
+    );
+
+  }
+
+}
+
+/* ==========================================================
+FORMAT TANGGAL JAM
+========================================================== */
+function formatTanggalJam(value){
+
+  if(!value){
+
+    return "-";
+
+  }
+
+  return new Date(value)
+    .toLocaleString(
+      "id-ID",
+      {
+        day:"2-digit",
+        month:"short",
+        year:"numeric",
+        hour:"2-digit",
+        minute:"2-digit"
+      }
+    );
+
+}
+
+/* ==========================================================
+REFRESH SESSION
+========================================================== */
+async function refreshSession(){
+
+  await loadSession();
+
+}
+
+/* ==========================================================
+EVENT LISTENER
+========================================================== */
+function initEvent(){
+
+  document
+    .getElementById(
+      "btnLogout"
+    )
+    .addEventListener(
+      "click",
+      handleLogout
+    );
+
+  document
+    .getElementById(
+      "btnGantiPin"
+    )
+    .addEventListener(
+      "click",
+      gantiPin
+    );
+
+  document
+    .getElementById(
+      "btnLogoutAll"
+    )
+    .addEventListener(
+      "click",
+      logoutSemuaDevice
+    );
+
+  document
+    .getElementById(
+      "btnBackup"
+    )
+    .addEventListener(
+      "click",
+      backupDatabase
+    );
+
+}
+
+/* ==========================================================
+LOAD DATA AWAL
+========================================================== */
+async function loadAwal(){
+
+  await Promise.all([
+
+    loadProfile(),
+
+    loadSession()
+
+  ]);
+
+}
+
+/* ==========================================================
+INIT PAGE
+========================================================== */
+async function initPage(){
+
+  initEvent();
+
+  await loadAwal();
+
+}
+
+/* ==========================================================
+AUTO REFRESH SESSION
+========================================================== */
+setInterval(
+
+  refreshSession,
+
+  60000
+
+);
+
+/* ==========================================================
+START APP
+========================================================== */
+if(guardSession()){
+
+  initPage();
+
+}
+</script>
+
+</body>
+</html>

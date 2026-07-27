@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Anggota · Zero Six Inventory</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <p class="sidebar-brand-mark">
+        Zero<span>Six</span>
+      </p>
+
+      <p class="sidebar-brand-sub">
+        Sky Lounge Inventory
+      </p>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <a class="sidebar-link" href="dashboard.html">
+        Dashboard
+      </a>
+
+      <a class="sidebar-link" href="produk.html">
+        Master Produk
+      </a>
+
+      <a class="sidebar-link active" href="anggota.html">
+        Anggota
+      </a>
+
+      <a class="sidebar-link" href="barangmasuk.html">
+        Barang Masuk
+      </a>
+
+      <a class="sidebar-link" href="barangkeluar.html">
+        Barang Keluar
+      </a>
+
+      <a class="sidebar-link" href="stockopname.html">
+        Stock Opname
+      </a>
+
+      <a class="sidebar-link" href="logharga.html">
+        Log Harga
+      </a>
+
+      <a class="sidebar-link" href="hpp.html">
+        Grafik HPP
+      </a>
+
+      <a class="sidebar-link" href="laporan.html">
+        Laporan
+      </a>
+
+      <a class="sidebar-link" href="pengaturan.html">
+        Pengaturan
+      </a>
+
+    </nav>
+
+    <div class="sidebar-foot">
+      Zero Six Inventory v2.1.0
+    </div>
+
+  </aside>
+
+  <!-- =====================================================
+       CONTENT
+  ====================================================== -->
+  <div class="content-area">
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+
+      <div>
+
+        <div class="navbar-title">
+          Master Anggota
+        </div>
+
+        <div class="navbar-date" id="tanggalHariIni"></div>
+
+      </div>
+
+      <div class="navbar-user">
+
+        <div class="navbar-user-name">
+
+          <div class="navbar-user-nama" id="userNama">
+            -
+          </div>
+
+          <div class="navbar-user-role" id="userRole">
+            -
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          class="btn-logout"
+          id="btnLogout">
+          Keluar
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-content">
+
+      <!-- =====================================================
+           SUMMARY CARD
+      ====================================================== -->
+      <div class="widget-grid">
+
+        <div class="widget">
+          <div class="stat-value" id="totalAnggota">0</div>
+          <div class="stat-label">Total Anggota</div>
+        </div>
+
+        <div class="widget">
+          <div class="stat-value" id="totalStaff">0</div>
+          <div class="stat-label">Staff</div>
+        </div>
+
+        <div class="widget">
+          <div class="stat-value" id="totalAktif">0</div>
+          <div class="stat-label">Aktif</div>
+        </div>
+
+        <div class="widget">
+          <div class="stat-value" id="totalNonaktif">0</div>
+          <div class="stat-label">Nonaktif</div>
+        </div>
+
+      </div>
+
+      <!-- =====================================================
+           FILTER BAR
+      ====================================================== -->
+      <div class="widget">
+
+        <div class="toolbar">
+
+          <input
+            type="text"
+            id="searchAnggota"
+            class="input-text"
+            placeholder="Cari nama anggota...">
+
+          <select
+            id="filterJabatan"
+            class="input-select">
+
+            <option value="">
+              Semua Jabatan
+            </option>
+
+            <option value="ANGGOTA">
+              ANGGOTA
+            </option>
+
+            <option value="STAFF">
+              STAFF
+            </option>
+
+          </select>
+
+          <select
+            id="filterStatus"
+            class="input-select">
+
+            <option value="">
+              Semua Status
+            </option>
+
+            <option value="Aktif">
+              Aktif
+            </option>
+
+            <option value="Nonaktif">
+              Nonaktif
+            </option>
+
+          </select>
+
+          <button
+            class="btn-primary"
+            id="btnTambahAnggota">
+
+            + Tambah Anggota
+
+          </button>
+
+          <button
+            class="btn-secondary"
+            id="btnRefresh">
+
+            Refresh
+
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- =====================================================
+           TABLE
+      ====================================================== -->
+      <div class="widget">
+
+        <div class="table-responsive">
+
+          <table class="table-data">
+
+            <thead>
+
+              <tr>
+                <th>Nama</th>
+                <th>Jabatan</th>
+                <th>Status</th>
+                <th width="220">Aksi</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="anggotaTableBody">
+
+              <tr>
+                <td colspan="4">
+                  Memuat data...
+                </td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- =====================================================
+     MODAL TAMBAH
+====================================================== -->
+<div
+  class="modal-overlay"
+  id="modalTambahAnggota">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+      Tambah Anggota
+    </div>
+
+    <div class="modal-body">
+
+      <div class="field">
+
+        <label class="field-label">
+          Nama
+        </label>
+
+        <input
+          type="text"
+          id="tambahNama"
+          class="input-text">
+
+      </div>
+
+      <div class="field">
+
+        <label class="field-label">
+          Jabatan
+        </label>
+
+        <select
+          id="tambahJabatan"
+          class="input-select">
+
+          <option value="ANGGOTA">
+            ANGGOTA
+          </option>
+
+          <option value="STAFF">
+            STAFF
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button
+        class="btn-secondary"
+        onclick="tutupModal('modalTambahAnggota')">
+
+        Batal
+
+      </button>
+
+      <button
+        class="btn-primary"
+        id="btnSimpanTambah">
+
+        Simpan
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- =====================================================
+     MODAL EDIT
+====================================================== -->
+<div
+  class="modal-overlay"
+  id="modalEditAnggota">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+      Edit Anggota
+    </div>
+
+    <div class="modal-body">
+
+      <input
+        type="hidden"
+        id="editNamaLama">
+
+      <div class="field">
+
+        <label class="field-label">
+          Nama
+        </label>
+
+        <input
+          type="text"
+          id="editNama"
+          class="input-text">
+
+      </div>
+
+      <div class="field">
+
+        <label class="field-label">
+          Jabatan
+        </label>
+
+        <select
+          id="editJabatan"
+          class="input-select">
+
+          <option value="ANGGOTA">
+            ANGGOTA
+          </option>
+
+          <option value="STAFF">
+            STAFF
+          </option>
+
+        </select>
+
+      </div>
+
+      <div class="field">
+
+        <label class="field-label">
+          Alasan Perubahan
+        </label>
+
+        <textarea
+          id="editAlasan"
+          class="input-text"
+          rows="3"></textarea>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button
+        class="btn-secondary"
+        onclick="tutupModal('modalEditAnggota')">
+
+        Batal
+
+      </button>
+
+      <button
+        class="btn-primary"
+        id="btnSimpanEdit">
+
+        Simpan Perubahan
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+<script>
+
+/* =====================================================
+STATE
+===================================================== */
+
+let daftarAnggota = [];
+let anggotaAktif = [];
+
+let filterJabatan = "";
+let filterStatus = "";
+let keywordCari = "";
+
+
+/* =====================================================
+LOAD DATA
+===================================================== */
+
+async function loadAnggota(){
+
+  tampilkanLoading(
+    "Memuat data anggota..."
+  );
+
+  try{
+
+    const result =
+      await panggilApi(
+        "anggota",
+        "list"
+      );
+
+    tutupLoading();
+
+    if(!result.success){
+
+      if(
+        tanganiJikaSessionGagal(
+          result.message
+        )
+      ){
+        return;
+      }
+
+      tampilkanToast(
+        result.message
+      );
+
+      return;
+    }
+
+    daftarAnggota =
+      result.data || [];
+
+    applyFilter();
+
+  }
+  catch(err){
+
+    tutupLoading();
+
+    tampilkanToast(
+      "Gagal mengambil data anggota."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+FILTER ENGINE
+===================================================== */
+
+function applyFilter(){
+
+  let hasil =
+    [...daftarAnggota];
+
+  if(filterJabatan){
+
+    hasil =
+      hasil.filter(function(item){
+
+        return (
+          item["Jabatan"] ===
+          filterJabatan
+        );
+
+      });
+
+  }
+
+  if(filterStatus){
+
+    hasil =
+      hasil.filter(function(item){
+
+        return (
+          item["Status"] ===
+          filterStatus
+        );
+
+      });
+
+  }
+
+  if(keywordCari){
+
+    const key =
+      keywordCari.toLowerCase();
+
+    hasil =
+      hasil.filter(function(item){
+
+        return (
+          String(
+            item["Nama"] || ""
+          )
+          .toLowerCase()
+          .includes(key)
+        );
+
+      });
+
+  }
+
+  anggotaAktif = hasil;
+
+  renderSummary();
+
+  renderTable();
+
+}
+
+
+/* =====================================================
+SUMMARY CARD
+===================================================== */
+
+function renderSummary(){
+
+  const total =
+    daftarAnggota.length;
+
+  const staff =
+    daftarAnggota.filter(
+      x => x["Jabatan"] === "STAFF"
+    ).length;
+
+  const aktif =
+    daftarAnggota.filter(
+      x => x["Status"] === "Aktif"
+    ).length;
+
+  const nonaktif =
+    daftarAnggota.filter(
+      x => x["Status"] === "Nonaktif"
+    ).length;
+
+  document.getElementById(
+    "totalAnggota"
+  ).textContent = total;
+
+  document.getElementById(
+    "totalStaff"
+  ).textContent = staff;
+
+  document.getElementById(
+    "totalAktif"
+  ).textContent = aktif;
+
+  document.getElementById(
+    "totalNonaktif"
+  ).textContent = nonaktif;
+
+}
+
+
+/* =====================================================
+RENDER TABLE
+===================================================== */
+
+function renderTable(){
+
+  const tbody =
+    document.getElementById(
+      "anggotaTableBody"
+    );
+
+  tbody.innerHTML = "";
+
+  if(
+    anggotaAktif.length === 0
+  ){
+
+    tbody.innerHTML =
+      `
+      <tr>
+        <td colspan="4" class="table-empty">
+          Tidak ada data.
+        </td>
+      </tr>
+      `;
+
+    return;
+  }
+
+  anggotaAktif.forEach(function(item){
+
+    const row =
+      document.createElement("tr");
+
+    row.innerHTML =
+      `
+      <td>
+        ${escapeHtml(
+          item["Nama"] || ""
+        )}
+      </td>
+
+      <td>
+        ${escapeHtml(
+          item["Jabatan"] || ""
+        )}
+      </td>
+
+      <td>
+
+        <span class="
+          badge
+          ${
+            item["Status"] === "Aktif"
+            ? "badge-success"
+            : "badge-secondary"
+          }
+        ">
+          ${item["Status"]}
+        </span>
+
+      </td>
+
+      <td>
+
+        <button
+          class="table-action edit"
+          onclick="openEditAnggota('${item["Nama"]}')">
+
+          Edit
+
+        </button>
+
+        <button
+          class="table-action delete"
+          onclick="nonaktifkanAnggota('${item["Nama"]}')">
+
+          Nonaktif
+
+        </button>
+
+      </td>
+      `;
+
+    tbody.appendChild(row);
+
+  });
+
+}
+
+</script>
+<script>
+
+/* ============================================================
+ * TABLE RENDER
+ * ============================================================ */
+
+function renderTable(data){
+
+  const tbody = document.getElementById("tableBody");
+
+  tbody.innerHTML = "";
+
+  if(!data || data.length === 0){
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="table-empty">
+          Tidak ada data anggota.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  data.forEach(function(item){
+
+    const tr = document.createElement("tr");
+
+    const statusClass =
+      item.Status === "Aktif"
+        ? "badge-success"
+        : "badge-danger";
+
+    tr.innerHTML = `
+      <td>${escapeHtml(item.Nama || "-")}</td>
+      <td>${escapeHtml(item.Jabatan || "-")}</td>
+      <td>
+        <span class="badge ${statusClass}">
+          ${escapeHtml(item.Status || "-")}
+        </span>
+      </td>
+      <td>${escapeHtml(item.Dibuat || "-")}</td>
+      <td class="table-action">
+
+        <button
+          class="btn-table btn-edit"
+          onclick="editAnggota('${encodeURIComponent(item.Nama)}')">
+
+          Edit
+        </button>
+
+        <button
+          class="btn-table btn-danger"
+          onclick="ubahStatusAnggota(
+            '${encodeURIComponent(item.Nama)}',
+            '${item.Status}'
+          )">
+
+          ${item.Status === "Aktif"
+            ? "Nonaktifkan"
+            : "Aktifkan"}
+
+        </button>
+
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+
+  });
+
+}
+
+
+/* ============================================================
+ * LOAD DATA
+ * ============================================================ */
+
+async function loadAnggota(){
+
+  try{
+
+    tampilkanLoading("Memuat data anggota...");
+
+    const result = await panggilApi(
+      "anggota",
+      "list",
+      {}
+    );
+
+    sembunyikanLoading();
+
+    if(!result.success){
+
+      if(tanganiJikaSessionGagal(result.message)) return;
+
+      tampilkanToast(
+        result.message || "Gagal memuat data."
+      );
+      return;
+    }
+
+    daftarAnggota = result.data || [];
+
+    renderTable(daftarAnggota);
+
+    updateCounter();
+
+  }
+  catch(err){
+
+    sembunyikanLoading();
+
+    tampilkanToast(
+      "Tidak dapat menghubungi server."
+    );
+
+    console.error(err);
+
+  }
+
+}
+
+
+/* ============================================================
+ * FILTER
+ * ============================================================ */
+
+function filterData(){
+
+  const keyword =
+    document
+      .getElementById("searchInput")
+      .value
+      .trim()
+      .toLowerCase();
+
+  const jabatan =
+    document.getElementById("filterJabatan").value;
+
+  const status =
+    document.getElementById("filterStatus").value;
+
+  const hasil = daftarAnggota.filter(function(item){
+
+    const cocokKeyword =
+      keyword === "" ||
+      (item.Nama || "")
+        .toLowerCase()
+        .includes(keyword);
+
+    const cocokJabatan =
+      jabatan === "" ||
+      item.Jabatan === jabatan;
+
+    const cocokStatus =
+      status === "" ||
+      item.Status === status;
+
+    return (
+      cocokKeyword &&
+      cocokJabatan &&
+      cocokStatus
+    );
+
+  });
+
+  renderTable(hasil);
+
+  document.getElementById(
+    "jumlahData"
+  ).textContent = hasil.length;
+
+}
+
+
+/* ============================================================
+ * COUNTER
+ * ============================================================ */
+
+function updateCounter(){
+
+  document.getElementById(
+    "jumlahData"
+  ).textContent = daftarAnggota.length;
+
+}
+
+</script>
+
+
+<script>
+
+/* =====================================================
+MODAL
+===================================================== */
+
+function bukaModal(id){
+
+  document
+    .getElementById(id)
+    .classList
+    .add("show");
+
+}
+
+function tutupModal(id){
+
+  document
+    .getElementById(id)
+    .classList
+    .remove("show");
+
+}
+
+
+/* =====================================================
+TAMBAH ANGGOTA
+===================================================== */
+
+function bukaTambahAnggota(){
+
+  document.getElementById(
+    "tambahNama"
+  ).value = "";
+
+  document.getElementById(
+    "tambahJabatan"
+  ).value = "ANGGOTA";
+
+  bukaModal(
+    "modalTambahAnggota"
+  );
+
+}
+
+
+async function simpanTambahAnggota(){
+
+  const nama =
+    document
+      .getElementById("tambahNama")
+      .value
+      .trim();
+
+  const jabatan =
+    document
+      .getElementById("tambahJabatan")
+      .value;
+
+  if(!nama){
+
+    tampilkanToast(
+      "Nama wajib diisi."
+    );
+
+    return;
+
+  }
+
+  tampilkanLoading(
+    "Menyimpan anggota..."
+  );
+
+  try{
+
+    const result =
+      await panggilApi(
+        "anggota",
+        "save",
+        {
+          nama,
+          jabatan
+        }
+      );
+
+    tutupLoading();
+
+    if(!result.success){
+
+      tampilkanToast(
+        result.message
+      );
+
+      return;
+
+    }
+
+    tampilkanToast(
+      "Anggota berhasil ditambahkan."
+    );
+
+    tutupModal(
+      "modalTambahAnggota"
+    );
+
+    loadAnggota();
+
+  }
+  catch(err){
+
+    tutupLoading();
+
+    tampilkanToast(
+      "Gagal menyimpan anggota."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+EDIT ANGGOTA
+===================================================== */
+
+async function openEditAnggota(nama){
+
+  const namaDecode =
+    decodeURIComponent(nama);
+
+  const anggota =
+    daftarAnggota.find(
+      x => x.Nama === namaDecode
+    );
+
+  if(!anggota){
+    return;
+  }
+
+  document.getElementById(
+    "editNamaLama"
+  ).value =
+    anggota.Nama;
+
+  document.getElementById(
+    "editNama"
+  ).value =
+    anggota.Nama;
+
+  document.getElementById(
+    "editJabatan"
+  ).value =
+    anggota.Jabatan;
+
+  document.getElementById(
+    "editAlasan"
+  ).value = "";
+
+  bukaModal(
+    "modalEditAnggota"
+  );
+
+}
+
+
+async function simpanEditAnggota(){
+
+  const namaLama =
+    document
+      .getElementById(
+        "editNamaLama"
+      )
+      .value;
+
+  const namaBaru =
+    document
+      .getElementById(
+        "editNama"
+      )
+      .value
+      .trim();
+
+  const jabatan =
+    document
+      .getElementById(
+        "editJabatan"
+      )
+      .value;
+
+  const alasan =
+    document
+      .getElementById(
+        "editAlasan"
+      )
+      .value
+      .trim();
+
+  if(!namaBaru){
+
+    tampilkanToast(
+      "Nama wajib diisi."
+    );
+
+    return;
+
+  }
+
+  if(!alasan){
+
+    tampilkanToast(
+      "Alasan wajib diisi."
+    );
+
+    return;
+
+  }
+
+  tampilkanLoading(
+    "Menyimpan perubahan..."
+  );
+
+  try{
+
+    const result =
+      await panggilApi(
+        "anggota",
+        "update",
+        {
+          nama: namaLama,
+          namaBaru,
+          jabatan,
+          alasan
+        }
+      );
+
+    tutupLoading();
+
+    if(!result.success){
+
+      tampilkanToast(
+        result.message
+      );
+
+      return;
+
+    }
+
+    tampilkanToast(
+      "Data anggota diperbarui."
+    );
+
+    tutupModal(
+      "modalEditAnggota"
+    );
+
+    loadAnggota();
+
+  }
+  catch(err){
+
+    tutupLoading();
+
+    tampilkanToast(
+      "Gagal memperbarui anggota."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+SET STATUS
+===================================================== */
+
+async function ubahStatusAnggota(
+  nama,
+  statusSaatIni
+){
+
+  const namaDecode =
+    decodeURIComponent(nama);
+
+  const statusBaru =
+    statusSaatIni === "Aktif"
+      ? "Nonaktif"
+      : "Aktif";
+
+  const yakin =
+    confirm(
+      "Ubah status menjadi " +
+      statusBaru +
+      " ?"
+    );
+
+  if(!yakin){
+    return;
+  }
+
+  tampilkanLoading(
+    "Memproses..."
+  );
+
+  try{
+
+    const result =
+      await panggilApi(
+        "anggota",
+        "setstatus",
+        {
+          nama: namaDecode,
+          status: statusBaru
+        }
+      );
+
+    tutupLoading();
+
+    if(!result.success){
+
+      tampilkanToast(
+        result.message
+      );
+
+      return;
+
+    }
+
+    tampilkanToast(
+      "Status berhasil diperbarui."
+    );
+
+    loadAnggota();
+
+  }
+  catch(err){
+
+    tutupLoading();
+
+    tampilkanToast(
+      "Gagal mengubah status."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+EVENT LISTENER
+===================================================== */
+
+function initEventListener(){
+
+  document
+    .getElementById(
+      "btnLogout"
+    )
+    .addEventListener(
+      "click",
+      handleLogout
+    );
+
+  document
+    .getElementById(
+      "btnTambahAnggota"
+    )
+    .addEventListener(
+      "click",
+      bukaTambahAnggota
+    );
+
+  document
+    .getElementById(
+      "btnRefresh"
+    )
+    .addEventListener(
+      "click",
+      loadAnggota
+    );
+
+  document
+    .getElementById(
+      "btnSimpanTambah"
+    )
+    .addEventListener(
+      "click",
+      simpanTambahAnggota
+    );
+
+  document
+    .getElementById(
+      "btnSimpanEdit"
+    )
+    .addEventListener(
+      "click",
+      simpanEditAnggota
+    );
+
+  document
+    .getElementById(
+      "searchInput"
+    )
+    .addEventListener(
+      "input",
+      debounce(
+        filterData,
+        300
+      )
+    );
+
+  document
+    .getElementById(
+      "filterJabatan"
+    )
+    .addEventListener(
+      "change",
+      filterData
+    );
+
+  document
+    .getElementById(
+      "filterStatus"
+    )
+    .addEventListener(
+      "change",
+      filterData
+    );
+
+}
+
+
+/* =====================================================
+USER INFO
+===================================================== */
+
+function initUserInfo(){
+
+  const session =
+    getSessionData();
+
+  if(!session){
+    return;
+  }
+
+  document.getElementById(
+    "userNama"
+  ).textContent =
+    session.nama || "-";
+
+  document.getElementById(
+    "userRole"
+  ).textContent =
+    session.role || "-";
+
+}
+
+
+/* =====================================================
+TANGGAL
+===================================================== */
+
+function initTanggal(){
+
+  document.getElementById(
+    "tanggalHariIni"
+  ).textContent =
+    new Date().toLocaleDateString(
+      "id-ID",
+      {
+        weekday:"long",
+        day:"numeric",
+        month:"long",
+        year:"numeric"
+      }
+    );
+
+}
+
+
+/* =====================================================
+INIT
+===================================================== */
+
+if(guardSession()){
+
+  initUserInfo();
+
+  initTanggal();
+
+  initEventListener();
+
+  loadAnggota();
+
+}
+
+</script>
+
+</body>
+</html>
